@@ -1,1 +1,3 @@
 node_modules
+movieToGif/movies/*
+movieToGif/out/*
