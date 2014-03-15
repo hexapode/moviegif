@@ -223,6 +223,10 @@ MOVIE_NAME = argv.name;
 SRT = argv.srt;
 MOVIE = argv.movie;
 
+if (argv.from) {
+    CURRENT = argv.from;
+}
+
 TARGET_DIR = './movieToGif/frames/' + MOVIE_NAME + '/';
 
 try {
