@@ -99,7 +99,7 @@ convert -background transparent -font Helvetica -pointsize 30 -fill white -size 
 
 var SUB_GENERATED = 0;
 function generateSubtitle(target, str) {
-    im.convert(['-background', 'transparent', '-font', 'Helvetica', '-pointsize', '30', '-fill', 'white', '-size', '600x', '-gravity', 'Center', '-stroke', 'black', '-strokewidth', '1', "caption:'" + str.replace(/\"/g, "'")  + "'", target], 
+    im.convert(['-background', 'transparent', '-font', 'Arial', '-pointsize', '35', '-fill', 'white', '-size', '600x', '-gravity', 'Center', '-stroke', 'black', '-strokewidth', '1.5', 'caption:' + str , target], 
     function(err, stdout){
 	if (err) {console.log(err);}
         mergeSubtitle();
