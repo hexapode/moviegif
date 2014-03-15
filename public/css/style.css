@@ -53,3 +53,38 @@ body {
   border : 0px solid #FEF1fD;
 }
 
+
+.searchi__text {
+  width : 350px;
+  height : 40px;
+  display : block;
+  padding : 0px;
+  position : absolute;
+  top : 10px;
+  left : 50%;
+  margin-left : -250px;
+  margin-top : -4px;
+  background-color : #FEF1fD;
+  border : 2px solid #FEF1fD;
+  border-bottom : 1px solid #eee;
+  color : #4B3344;
+  font-size : 30px;
+  font-family : Inconsolata;
+}
+
+.searchi__button {
+  width : 110px;
+  height : 40px;
+  display : block;
+  padding : 0px;
+  position : absolute;
+  top : 10px;
+  left : 50%;
+  margin-left : 135px;
+  margin-top : -2px;
+  background-color : transparent;
+  color : #4B3344;
+  font-size : 30px;
+  font-family : Inconsolata;
+  border : 0px solid #FEF1fD;
+}
