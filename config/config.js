@@ -26,7 +26,7 @@ var config = {
     app: {
       name: 'moviegif'
     },
-    port: 3000,
+    port: 80,
     db: 'mongodb://localhost/moviegif-production'
   }
 };

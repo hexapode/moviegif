@@ -7,8 +7,16 @@
   },
   "dependencies": {
     "express": "~3.3.4",
-    "jade": "~0.34.0",
-    "mongoose": "~3.6.14"
+    "mongoose": "~3.6.14",
+    "gm": "^1.14.2",
+    "subtitles-parser": "0.0.2",
+    "fluent-ffmpeg": "^1.6.0",
+    "gifencoder": "^1.0.3",
+    "png-file-stream": "^0.1.0",
+    "netpbm": "^1.0.0",
+    "coffee-script": "^1.7.1",
+    "ejs": "^0.8.5",
+    "imagemagick": "^0.1.3"
   },
   "devDependencies": {
     "grunt": "~0.4.1",

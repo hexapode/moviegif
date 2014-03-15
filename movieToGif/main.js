@@ -4,11 +4,17 @@ var ffmpeg = require('fluent-ffmpeg');
 var GIFEncoder = require('gifencoder');
 var pngFileStream = require('png-file-stream');
 var gm = require('gm');
+var im = require('imagemagick');
+var elasticsearch = require('elasticsearch');
+var elasticclient = new elasticsearch.Client({
+    host: 'localhost:9200',
+    log: 'trace'
+});
 
 
 var MOVIE_NAME = 'arrow';
-var SRT = './movies/arrow.srt';
-var MOVIE = './movies/arrow.mp4';
+var SRT = './movieToGif/movies/arrow.srt';
+var MOVIE = './movieToGif/movies/arrow.mp4';
 
 var BUFFER = [];
 var CURRENT = 0;
@@ -77,13 +83,47 @@ function generateNext() {
       timemarks: fb
       ,
       filename: 'screenshot' + CURRENT + '_%i'
-    }, './frames', function(err, filenames) {
+    }, './movieToGif/frames', function(err, filenames) {
       if (err) {console.log(err);}
       console.log('screenshots ok!');
 
       generateAPNG(filenames);
 
   });
+}
+
+/**
+convert -background transparent -font Helvetica -pointsize 30 -fill white -size 600x  -gravity Center -stroke black -strokewidth 1 caption:'Hsata la visita babidta. LOrem PSum psum it sum'  new.png
+*/
+
+var SUB_GENERATED = 0;
+function generateSubtitle(target, str) {
+    im.convert(['-background', 'transparent', '-font', 'Helvetica', '-pointsize', '30', '-fill', 'white', '-size', '600x', '-gravity', 'Center', '-stroke', 'black', '-strokewidth', '1', "caption:'" + str.replace(/\"/g, "'")  + "'", target], 
+    function(err, stdout){
+	if (err) {console.log(err);}
+        mergeSubtitle();
+    });
+}
+
+/**
+convert k0jbqs.jpg \
+( 313386r.png -thumbnail x25 ) -gravity west   -geometry  +0+30 -composite \
+( 313386r.png -thumbnail x25 ) -gravity center -geometry +80+30 -composite \
+( 313386r.png -thumbnail x25 ) -gravity east   -geometry  +0+30 -composite \
+   output.png 
+*/
+var FUSIONED_SUBTITLES = 0;
+function mergeSubtitle() {
+    var i = 0;
+    while (i < CURRENT_FILES.length) {
+	im.convert();
+	++i;
+    }
+}
+
+function generateAllSubtitles() {
+    SUB_GENERATED = 0;
+    generateSubtitle('./movieToGif/frames/srt' + CURRENT + '.png', BUFFER[CURRENT].text)
 }
 
 var FILE_GENERATED = 0;
@@ -96,16 +136,14 @@ function generateAPNG(filenames) {
     if (numName < 10) {
       numName = '0' + numName;
     }
-    gm('./frames/' + filenames[i])
-      .font("Helvetica.ttf", 12)
-      .drawText(30, 20, CURRENT_FRAME.srt)
+    gm('./movieToGif/frames/' + filenames[i])
       .noProfile()
-      .write('./frames/frame' + CURRENT + '_' +numName +  '.png', function (err) {
-        if (err) console.log(err);
+      .write('./movieToGif/frames/frame' + CURRENT + '_' +numName +  '.png', function (err) {
+        if (err) console.log('gm', err);
       //  console.log(err);
         FILE_GENERATED++;
         if (FILE_GENERATED === FRAMES_PER_SUBTITLES) {
-          generatetheGif();
+            generateAllSubtitles();
         }
       });
     ++i;
@@ -115,18 +153,35 @@ function generateAPNG(filenames) {
 function generatetheGif() {
   var encoder = new GIFEncoder(600, 300);
 
-  pngFileStream('./frames/frame' + CURRENT +'_*.png')
+  pngFileStream('./movieToGif/frames/frame' + CURRENT +'_*.png')
   .pipe(encoder.createWriteStream({ repeat: 0, delay: delta * 1000 | 0, quality: 10 }))
-  .pipe(fs.createWriteStream('./out/' + MOVIE_NAME + '_' + (CURRENT + 1) + '.gif'));
+  .pipe(fs.createWriteStream('./movieToGif/out/' + MOVIE_NAME + '_' + (CURRENT + 1) + '.gif'));
 
   ++CURRENT;
 
   console.log('Generate Frame number : ' + CURRENT);
 
+  indexAGif(CURRENT_FRAME.text, MOVIE_NAME + '_' + (CURRENT) + '.gif');
   if (CURRENT < BUFFER.length) {
     generateNext();
   }
 }
 
+function indexAGif(srt, gif) {
+    elasticclient.create({
+	index: 'srt',
+	type: 'srt',
+	id: gif,
+	body: {
+	    srt: srt,
+	    gif_name : gif
+	}
+    }, function (err, response) {
+	if (err) {
+	    console.log('indexation : ', err)
+	}
+    });
+
+}
 
 generateGif();
