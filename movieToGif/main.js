@@ -106,12 +106,15 @@ function generateSubtitle(target, str) {
     });
 }
 
-
+//  sudo convert frame0_00.png srt0.png -gravity south -composite t.png
 var FUSIONED_SUBTITLES = 0;
 function mergeSubtitle() {
     var i = 0;
     while (i < CURRENT_FILES.length) {
-        im.composite(['-gravity', 'South', TARGET_DIR + CURRENT_FILES[i], TARGET_DIR + 'srt' + CURRENT + '.png', TARGET_DIR + CURRENT_FILES[i]
+        im.convert([TARGET_DIR + CURRENT_FILES[i],
+                   TARGET_DIR + 'srt' + CURRENT + '.png',
+                    '-gravity', 'south',
+                    '-composite',  TARGET_DIR + CURRENT_FILES[i]
             ], function(err, stdout) {
               if (err) {
                 console.log(err);
