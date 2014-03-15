@@ -1,0 +1,9 @@
+<%- include ../header.ejs %>
+
+  <h1>Results for query: <%- query %></h1>
+
+  <% results.forEach(function (result) { %>
+   <li><img src="/gif/<%- result.gif_name %>"/></li>
+  <% }) %>
+
+<%- include ../footer.ejs %>
