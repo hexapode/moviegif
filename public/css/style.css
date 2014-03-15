@@ -89,11 +89,16 @@ body {
   border : 0px solid #FEF1fD;
 }
 
+.result__img {
+  width : 100%;
+}
 
-.img_result {
+.result__block {
   display : block;
   width  : 300px;
   height : 150px;
   float : left;
   border-radius : 4px;
+  background-color : #4B3344;
+  padding : 10px;
 }

@@ -4,7 +4,12 @@
   <h1>Results for query: <%- query %></h1>
 
   <% results.forEach(function (result) { %>
-   <img src="/gif/<%- result.gif_name %>" class='img_result'/>
+    
+    <div class='result__block'> 
+      <a href='/gif/<%- result.gif_name %>' style='text-decoration : none'>
+        <img src="/gif/<%- result.gif_name %>" class='img_result'/>
+      </a>
+    </div>
   <% }) %>
 
 <%- include ../footer.ejs %>
