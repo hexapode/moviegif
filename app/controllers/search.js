@@ -6,16 +6,14 @@ var client = new elasticsearch.Client({
 
 exports.index = function(req, res){
   client.search({
-      index: 'srt',
-      q: req.query.q || '*'
+    index: 'srt',
+    q: req.query.q + '~' || '*'
   }, function(err, results){
     if (err) throw new Error(err);
 
-    console.log(results.hits.hits[0]);
-
     res.render('search/index', {
       title: 'Search results',
-      query: req.query.q,
+      query: req.query.q || '*',
       results: results.hits.hits.map(function (result) {
 	return result._source;
       })
