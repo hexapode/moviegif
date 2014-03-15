@@ -102,9 +102,32 @@ function generateSubtitle(target, str) {
     im.convert(['-background', 'transparent', '-font', 'Arial', '-pointsize', '35', '-fill', 'white', '-size', '600x', '-gravity', 'Center', '-stroke', 'black', '-strokewidth', '1.5', 'caption:' + str , target], 
     function(err, stdout){
 	if (err) {console.log(err);}
-        mergeSubtitle();
+        mergeWaterMark();
     });
 }
+
+var FUSIONED_WATERMARKS = 0;
+function mergeWaterMark() {
+  FUSIONED_WATERMARKS = 0;
+  var i = 0;
+  while (i < CURRENT_FILES.length) {
+ //   console.log(TARGET_DIR + CURRENT_FILES[i]);
+      im.convert([TARGET_DIR + CURRENT_FILES[i],
+                 './movieToGif/watermark.png',
+                  '-gravity', 'west',
+                  '-composite',  TARGET_DIR + CURRENT_FILES[i]
+          ], function(err, stdout) {
+            if (err) {
+              console.log(err);
+            }
+            FUSIONED_WATERMARKS++;
+            if (FUSIONED_WATERMARKS == FRAMES_PER_SUBTITLES) {
+              mergeSubtitle();
+            }
+          });
+      ++i;
+    }
+};
 
 //  sudo convert frame0_00.png srt0.png -gravity south -composite t.png
 var FUSIONED_SUBTITLES = 0;
