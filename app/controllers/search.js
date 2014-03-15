@@ -7,7 +7,7 @@ var client = new elasticsearch.Client({
 exports.index = function(req, res){
   client.search({
     index: 'srt',
-    q: req.query.q + '~' || '*'
+    q: req.query.q || '*'
   }, function(err, results){
     if (err) throw new Error(err);
 
