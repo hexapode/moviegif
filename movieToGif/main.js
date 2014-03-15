@@ -111,7 +111,7 @@ var FUSIONED_SUBTITLES = 0;
 function mergeSubtitle() {
     var i = 0;
     while (i < CURRENT_FILES.length) {
-        im.convert(['-gravity', 'South', '-size', '600x', TARGET_DIR + CURRENT_FILES[i], TARGET_DIR + 'srt' + CURRENT + '.png', TARGET_DIR + CURRENT_FILES[i]
+        im.composite(['-gravity', 'South', TARGET_DIR + CURRENT_FILES[i], TARGET_DIR + 'srt' + CURRENT + '.png', TARGET_DIR + CURRENT_FILES[i]
             ], function(err, stdout) {
               if (err) {
                 console.log(err);
