@@ -87,8 +87,8 @@ function generateNext() {
     }, TARGET_DIR, function(err, filenames) {
       if (err) {console.log(err);}
       console.log('screenshots ok!');
-
-      generateAPNG(filenames);
+        CURRENT_FILES = filenames;
+      generateAllSubtitles();
 
   });
 }
@@ -109,8 +109,10 @@ function generateSubtitle(target, str) {
 //  sudo convert frame0_00.png srt0.png -gravity south -composite t.png
 var FUSIONED_SUBTITLES = 0;
 function mergeSubtitle() {
+   FUSIONED_SUBTITLES = 0;
     var i = 0;
     while (i < CURRENT_FILES.length) {
+   //   console.log(TARGET_DIR + CURRENT_FILES[i]);
         im.convert([TARGET_DIR + CURRENT_FILES[i],
                    TARGET_DIR + 'srt' + CURRENT + '.png',
                     '-gravity', 'south',
@@ -121,7 +123,7 @@ function mergeSubtitle() {
               }
               FUSIONED_SUBTITLES++;
               if (FUSIONED_SUBTITLES == FRAMES_PER_SUBTITLES) {
-                generatetheGif();
+                generateAPNG(CURRENT_FILES);
               }
             });
         ++i;
@@ -130,13 +132,14 @@ function mergeSubtitle() {
 
 
 function generateAllSubtitles() {
+   console.log('generateTheSub');
     SUB_GENERATED = 0;
-    generateSubtitle(TARGET_DIR + 'srt' + CURRENT + '.png', BUFFER[CURRENT].text)
+    generateSubtitle(TARGET_DIR + 'srt' + CURRENT + '.png', BUFFER[CURRENT].text);
 }
 
 var FILE_GENERATED = 0;
 function generateAPNG(filenames) {
-  CURRENT_FILES = filenames;
+   console.log('generateThePNG');
   FILE_GENERATED = 0;
   var i = 0;
   while (i < filenames.length) {
@@ -151,7 +154,7 @@ function generateAPNG(filenames) {
       //  console.log(err);
         FILE_GENERATED++;
         if (FILE_GENERATED === FRAMES_PER_SUBTITLES) {
-            generateAllSubtitles();
+            generatetheGif();
         }
       });
     ++i;
@@ -159,6 +162,7 @@ function generateAPNG(filenames) {
 }
 
 function generatetheGif() {
+  console.log('generateTheGif');
   var encoder = new GIFEncoder(600, 300);
 
   pngFileStream(TARGET_DIR + '/frame' + CURRENT +'_*.png')
