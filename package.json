@@ -1,0 +1,23 @@
+{
+  "name": "moviegif",
+  "version": "0.0.0",
+  "description": "moviegif ========",
+  "main": "index.js",
+  "dependencies": {
+    "generator-express": "~1.0.8",
+    "yeoman": "~0.9.6"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/hexapode/moviegif"
+  },
+  "author": "",
+  "license": "BSD",
+  "bugs": {
+    "url": "https://github.com/hexapode/moviegif/issues"
+  }
+}
