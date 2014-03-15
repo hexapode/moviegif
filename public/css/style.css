@@ -89,7 +89,7 @@ body {
   border : 0px solid #FEF1fD;
 }
 
-.result__img {
+.img__result {
   width : 100%;
 }
 
@@ -101,4 +101,5 @@ body {
   border-radius : 4px;
   background-color : #4B3344;
   padding : 10px;
+  margin : 5px;
 }
