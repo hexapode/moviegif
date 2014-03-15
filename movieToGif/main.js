@@ -1,0 +1,132 @@
+var fs = require('fs');
+var parser = require('subtitles-parser');
+var ffmpeg = require('fluent-ffmpeg');
+var GIFEncoder = require('gifencoder');
+var pngFileStream = require('png-file-stream');
+var gm = require('gm');
+
+
+var MOVIE_NAME = 'arrow';
+var SRT = './movies/arrow.srt';
+var MOVIE = './movies/arrow.mp4';
+
+var BUFFER = [];
+var CURRENT = 0;
+var CURRENT_FRAME = 0;
+var CURRENT_FILES = 0;
+var FRAMES_PER_SUBTITLES = 20;
+
+
+
+function getSrtObject() {
+  var srt = fs.readFileSync(SRT);
+  var data = parser.fromSrt(srt.toString());
+  return data;
+}
+
+
+function generateGif() {
+  var data = getSrtObject();
+  BUFFER = data;
+
+  generateNext();
+}
+
+function movieTimeFromSrtTime(strTime) {
+  // '00:41:56,520'
+
+  var h = strTime.substr(0, 2) * 60 * 60;
+  var m = strTime.substr(3, 2) * 60;
+  var s = strTime.substr(6, 2) * 1;
+
+  return s + m + h;
+}
+
+var delta = 0;
+function generateNext() {
+  console.log('Starting Frame ' + CURRENT + ' / ' + BUFFER.length);
+
+  CURRENT_FRAME = BUFFER[CURRENT];
+  
+  var st = movieTimeFromSrtTime(CURRENT_FRAME.startTime);
+  var et = movieTimeFromSrtTime(CURRENT_FRAME.endTime);
+
+
+
+  st -= 1.0;
+  if (st < 0) {
+    st = 0;
+  }
+  et += 1.0;
+  console.log('Subset Length' , et - st);
+  var i = 0;
+  var fb = [];
+  var d = (et - st) / FRAMES_PER_SUBTITLES;
+  delta = d;
+  console.log(delta);
+  while (i < FRAMES_PER_SUBTITLES) {
+    var time = st + d * i + 0.00001;
+    fb.push(new String(time));
+    ++i;
+  }
+
+  var proc = new ffmpeg({ source: MOVIE})
+  .withSize('600x300')
+  .takeScreenshots({
+      count: FRAMES_PER_SUBTITLES,
+      timemarks: fb
+      ,
+      filename: 'screenshot' + CURRENT + '_%i'
+    }, './frames', function(err, filenames) {
+      if (err) {console.log(err);}
+      console.log('screenshots ok!');
+
+      generateAPNG(filenames);
+
+  });
+}
+
+var FILE_GENERATED = 0;
+function generateAPNG(filenames) {
+  CURRENT_FILES = filenames;
+  FILE_GENERATED = 0;
+  var i = 0;
+  while (i < filenames.length) {
+    var numName = i;
+    if (numName < 10) {
+      numName = '0' + numName;
+    }
+    gm('./frames/' + filenames[i])
+      .font("Helvetica.ttf", 12)
+      .drawText(30, 20, CURRENT_FRAME.srt)
+      .noProfile()
+      .write('./frames/frame' + CURRENT + '_' +numName +  '.png', function (err) {
+        if (err) console.log(err);
+      //  console.log(err);
+        FILE_GENERATED++;
+        if (FILE_GENERATED === FRAMES_PER_SUBTITLES) {
+          generatetheGif();
+        }
+      });
+    ++i;
+  }
+}
+
+function generatetheGif() {
+  var encoder = new GIFEncoder(600, 300);
+
+  pngFileStream('./frames/frame' + CURRENT +'_*.png')
+  .pipe(encoder.createWriteStream({ repeat: 0, delay: delta * 1000 | 0, quality: 10 }))
+  .pipe(fs.createWriteStream('./out/' + MOVIE_NAME + '_' + (CURRENT + 1) + '.gif'));
+
+  ++CURRENT;
+
+  console.log('Generate Frame number : ' + CURRENT);
+
+  if (CURRENT < BUFFER.length) {
+    generateNext();
+  }
+}
+
+
+generateGif();
