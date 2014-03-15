@@ -15,6 +15,7 @@ var elasticclient = new elasticsearch.Client({
 var MOVIE_NAME = 'arrow';
 var SRT = './movieToGif/movies/arrow.srt';
 var MOVIE = './movieToGif/movies/arrow.mp4';
+var TARGET_DIR= './movieToGif/frames/';
 
 var BUFFER = [];
 var CURRENT = 0;
@@ -83,7 +84,7 @@ function generateNext() {
       timemarks: fb
       ,
       filename: 'screenshot' + CURRENT + '_%i'
-    }, './movieToGif/frames', function(err, filenames) {
+    }, TARGET_DIR, function(err, filenames) {
       if (err) {console.log(err);}
       console.log('screenshots ok!');
 
@@ -105,25 +106,29 @@ function generateSubtitle(target, str) {
     });
 }
 
-/**
-convert k0jbqs.jpg \
-( 313386r.png -thumbnail x25 ) -gravity west   -geometry  +0+30 -composite \
-( 313386r.png -thumbnail x25 ) -gravity center -geometry +80+30 -composite \
-( 313386r.png -thumbnail x25 ) -gravity east   -geometry  +0+30 -composite \
-   output.png 
-*/
+
 var FUSIONED_SUBTITLES = 0;
 function mergeSubtitle() {
     var i = 0;
     while (i < CURRENT_FILES.length) {
-	im.convert();
-	++i;
+        im.convert(['-gravity', 'South', '-size', '600x', TARGET_DIR + CURRENT_FILES[i], TARGET_DIR + 'srt' + CURRENT + '.png'
+            ], function(err, stdout) {
+              if (err) {
+                console.log(err);
+              }
+              FUSIONED_SUBTITLES++;
+              if (FUSIONED_SUBTITLES == FRAMES_PER_SUBTITLES) {
+                generatetheGif();
+              }
+            });
+        ++i;
     }
 }
 
+
 function generateAllSubtitles() {
     SUB_GENERATED = 0;
-    generateSubtitle('./movieToGif/frames/srt' + CURRENT + '.png', BUFFER[CURRENT].text)
+    generateSubtitle(TARGET_DIR + 'srt' + CURRENT + '.png', BUFFER[CURRENT].text)
 }
 
 var FILE_GENERATED = 0;
@@ -136,9 +141,9 @@ function generateAPNG(filenames) {
     if (numName < 10) {
       numName = '0' + numName;
     }
-    gm('./movieToGif/frames/' + filenames[i])
+    gm(TARGET_DIR + filenames[i])
       .noProfile()
-      .write('./movieToGif/frames/frame' + CURRENT + '_' +numName +  '.png', function (err) {
+      .write(TARGET_DIR + 'frame' + CURRENT + '_' +numName +  '.png', function (err) {
         if (err) console.log('gm', err);
       //  console.log(err);
         FILE_GENERATED++;
@@ -153,7 +158,7 @@ function generateAPNG(filenames) {
 function generatetheGif() {
   var encoder = new GIFEncoder(600, 300);
 
-  pngFileStream('./movieToGif/frames/frame' + CURRENT +'_*.png')
+  pngFileStream(TARGET_DIR + '/frame' + CURRENT +'_*.png')
   .pipe(encoder.createWriteStream({ repeat: 0, delay: delta * 1000 | 0, quality: 10 }))
   .pipe(fs.createWriteStream('./movieToGif/out/' + MOVIE_NAME + '_' + (CURRENT + 1) + '.gif'));
 
