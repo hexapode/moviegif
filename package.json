@@ -1,23 +1,22 @@
 {
   "name": "moviegif",
-  "version": "0.0.0",
-  "description": "moviegif ========",
-  "main": "index.js",
-  "dependencies": {
-    "generator-express": "~1.0.8",
-    "yeoman": "~0.9.6"
-  },
-  "devDependencies": {},
+  "version": "0.0.1",
+  "private": true,
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "app.js"
   },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/hexapode/moviegif"
+  "dependencies": {
+    "express": "~3.3.4",
+    "jade": "~0.34.0",
+    "mongoose": "~3.6.14"
   },
-  "author": "",
-  "license": "BSD",
-  "bugs": {
-    "url": "https://github.com/hexapode/moviegif/issues"
+  "devDependencies": {
+    "grunt": "~0.4.1",
+    "grunt-develop": "~0.2.2",
+    "grunt-contrib-watch": "~0.5.3",
+    "grunt-contrib-compass": "~0.6.0",
+    "request": "~2.27.0",
+    "time-grunt": "~0.1.1",
+    "load-grunt-tasks": "~0.2.0"
   }
 }
