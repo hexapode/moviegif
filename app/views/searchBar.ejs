@@ -1,4 +1,13 @@
 <form action="/search">
-  <input type="text" name="q" />
-  <input type="submit"/>
+
+  <input id='text' type="text" name="q" class='search__text' value='' placeholder='Search for movie quote
+' />
+  <input type="submit" class='search__button' value='Search!' />
+
 </form>
+
+<script>
+  document.body.onload = function() {
+    document.getElementById('text').focus();
+  }
+</script>
