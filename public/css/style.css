@@ -88,3 +88,12 @@ body {
   font-family : Inconsolata;
   border : 0px solid #FEF1fD;
 }
+
+
+.img_result {
+  display : block;
+  width  : 300px;
+  height : 150px;
+  float : left;
+  border-radius : 4px;
+}
