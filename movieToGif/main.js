@@ -51,6 +51,7 @@ function generateGif() {
 
 
 function hasPunctuation(str) {
+    console.log(str)
     if (str.indexOf('.') != -1) {
         return true;
     }
@@ -69,15 +70,15 @@ function fusion(data) {
     for (var i = 0; i < data.length; ++i) {
         var str = data[i];
         out.push(str);
-        if (hasPunctuation(str)) {
+        if (hasPunctuation(str.text)) {
             
         }
         else {
-            if (str.length > 150) {
+            if (str.text.length > 150) {
                 
             }
             else if (hasPunctuation(data[i + 1].text)) {
-                str += ' ' + data[i + 1].text;
+                str.text += ' ' + data[i + 1].text;
                 out.push(str);
             }
         }
@@ -155,7 +156,14 @@ function generateNext() {
 
 var SUB_GENERATED = 0;
 function generateSubtitle(target, str) {
-    im.convert(['-background', 'transparent', '-font', 'Arial', '-pointsize', '35', '-fill', 'white', '-size', WIDTH + 'x', '-gravity', 'Center', '-stroke', 'black', '-strokewidth', '1.5', 'caption:' + str , target], 
+    var size = 35;
+    if (str.length > 30) {
+        size = 25;
+    }
+    if (str.length > 60) {
+        size = 20;
+    }
+    im.convert(['-background', 'transparent', '-font', 'Arial', '-pointsize', size, '-fill', 'white', '-size', WIDTH + 'x', '-gravity', 'Center', '-stroke', 'black', '-strokewidth', '1.8', 'caption:' + str , target], 
 	       function(err, stdout){
 		   if (err) {console.log(err);}
 		   mergeWaterMark();
@@ -246,15 +254,13 @@ function generatetheGif() {
 
     pngFileStream(TARGET_DIR + '/frame' + CURRENT +'_*.png')
 	.pipe(encoder.createWriteStream({ repeat: 0, delay: delta * 1000 | 0, quality: 3 }))
-	.pipe(fs.createWriteStream('./movieToGif/out/' + MOVIE_NAME + '_' + (CURRENT + 1) + '.png'));
+	.pipe(fs.createWriteStream('./movieToGif/out/' + MOVIE_NAME + '_' + (CURRENT + 1) + '.gif'));
 
 
-    var is = fs.createReadStream(TARGET_DIR + '/frame' + CURRENT +'_3.png');
+    var is = fs.createReadStream(TARGET_DIR + '/frame' + CURRENT +'_03.png');
     var os = fs.createWriteStream('./movieToGif/out/' + MOVIE_NAME + '_' + (CURRENT + 1) + '.png');
 
-    util.pump(is, os, function() {
-        fs.unlinkSync('source_file');
-    });
+    util.pump(is, os, function() {});
 
 
     ++CURRENT;
