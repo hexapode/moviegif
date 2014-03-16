@@ -112,6 +112,15 @@ body {
 }
 
 .view__container {
-  width : 500px;
+  width : 480px;
   margin : auto;
+  padding : 5px;
+  border-radius : 4px; 
+  background-color  : #E84A5F;
+  color : #2A363B;
+}
+
+.single_nav-button{
+  text-decoration : none;
+  color : #2A363B;
 }
