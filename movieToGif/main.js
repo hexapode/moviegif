@@ -6,6 +6,10 @@ var pngFileStream = require('png-file-stream');
 var gm = require('gm');
 var im = require('imagemagick');
 var minimist = require('minimist');
+var util = require('util');
+
+
+
 
 var elasticsearch = require('elasticsearch');
 var elasticclient = new elasticsearch.Client({
@@ -35,9 +39,60 @@ function getSrtObject() {
 
 function generateGif() {
     var data = getSrtObject();
+
+    data = sanitize(data);
+
+    data = fusion(data);
     BUFFER = data;
 
+
     generateNext();
+}
+
+
+function hasPunctuation(str) {
+    if (str.indexOf('.') != -1) {
+        return true;
+    }
+    if (str.indexOf('!') != -1) {
+        return true;
+    }
+    if (str.indexOf('?') != -1) {
+        return true;
+    }
+    return false;
+}
+
+function fusion(data) {
+    var out = [];
+
+    for (var i = 0; i < data.length; ++i) {
+        var str = data[i];
+        out.push(str);
+        if (hasPunctuation(str)) {
+            
+        }
+        else {
+            if (str.length > 150) {
+                
+            }
+            else if (hasPunctuation(data[i + 1].text)) {
+                str += ' ' + data[i + 1].text;
+                out.push(str);
+            }
+        }
+    }
+    return out;
+}
+
+function sanitize(data) {
+    for (var i = 0; i < data.length; ++i) {
+        var str = data[i].text;
+        var regex = /(<([^>]+)>)/ig;
+        str = str.replace(regex, "");
+        data[i].text = str;
+    }
+    return data;
 }
 
 function movieTimeFromSrtTime(strTime) {
@@ -191,13 +246,21 @@ function generatetheGif() {
 
     pngFileStream(TARGET_DIR + '/frame' + CURRENT +'_*.png')
 	.pipe(encoder.createWriteStream({ repeat: 0, delay: delta * 1000 | 0, quality: 3 }))
-	.pipe(fs.createWriteStream('./movieToGif/out/' + MOVIE_NAME + '_' + (CURRENT + 1) + '.gif'));
+	.pipe(fs.createWriteStream('./movieToGif/out/' + MOVIE_NAME + '_' + (CURRENT + 1) + '.png'));
+
+
+    var is = fs.createReadStream(TARGET_DIR + '/frame' + CURRENT +'_3.png');
+    var os = fs.createWriteStream('./movieToGif/out/' + MOVIE_NAME + '_' + (CURRENT + 1) + '.png');
+
+    util.pump(is, os, function() {
+        fs.unlinkSync('source_file');
+    });
+
 
     ++CURRENT;
-
     console.log('Generate Frame number : ' + CURRENT);
 
-    indexAGif(CURRENT_FRAME.text, MOVIE_NAME + '_' + (CURRENT) + '.gif');
+    indexAGif(CURRENT_FRAME.text, MOVIE_NAME + '_' + (CURRENT));
     if (CURRENT < BUFFER.length) {
 	generateNext();
     }
@@ -211,7 +274,8 @@ function indexAGif(srt, gif) {
 	body: {
 	    srt: srt,
 	    movie: MOVIE_NAME,
-	    gif_name : gif
+        gif_name : gif +'.gif',
+	    frame_name : gif +'.png',
 	}
     }, function (err, response) {
 	if (err) {
