@@ -5,26 +5,36 @@ var client = new elasticsearch.Client({
 });
 
 exports.index = function(req, res) {
-    client.search({
-	index: 'srt',
-	body: {
+    var query = req.query.q || '*';
+
+    var params = {
+	index: 'srt'
+    };
+
+    if (query !== '*') {
+	params.body = {
 	    query: {
 		match: {
-		    srt: req.query.q || '*'
+		    srt: req.query.q
 		}
 	    },
 	    size: 100
-	}
-    }, function(err, results){
+	};
+    } else {
+	params.q = '*';
+    }
 
+    client.search(params, function(err, results){
 	if (err) {
-	    return res.render('search/error', { title: 'Search results',
-					 query: req.query.q || '*'});
+	    return res.render('search/error', {
+		title: 'Search results',
+		query: query
+	    });
 	}
 
 	res.render('search/index', {
 	    title: 'Search results',
-	    query: req.query.q || '*',
+	    query: query,
 	    results: results.hits.hits.map(function (result) {
 		return result._source;
 	    })
