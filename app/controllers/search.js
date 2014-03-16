@@ -9,7 +9,7 @@ exports.index = function(req, res) {
 	index: 'srt',
 	body: {
 	    query: {
-		term: {
+		match: {
 		    srt: req.query.q || '*'
 		}
 	    },
@@ -18,7 +18,7 @@ exports.index = function(req, res) {
     }, function(err, results){
 
 	if (err) {
-	    res.render('search/error', { title: 'Search results',
+	    return res.render('search/error', { title: 'Search results',
 					 query: req.query.q || '*'});
 	}
 
