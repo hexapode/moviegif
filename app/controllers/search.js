@@ -9,13 +9,17 @@ exports.index = function(req, res){
     index: 'srt',
     q: req.query.q || '*'
   }, function(err, results){
-    if (err) throw new Error(err);
+
+    if (err) {
+      res.render('search/error', { title: 'Search results',
+      query: req.query.q || '*'});
+    }
 
     res.render('search/index', {
       title: 'Search results',
       query: req.query.q || '*',
       results: results.hits.hits.map(function (result) {
-	return result._source;
+        return result._source;
       })
     });
   });
