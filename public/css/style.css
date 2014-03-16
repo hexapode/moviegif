@@ -1,7 +1,7 @@
 
 
 body {
-  background-color : #FEF1fD;
+  background-color : #2A363B;
   font-family : Inconsolata;
 }
 
@@ -28,10 +28,10 @@ body {
   left : 50%;
   margin-left : -250px;
   margin-top : -4px;
-  background-color : #FEF1fD;
-  border : 2px solid #FEF1fD;
+  background-color : #2A363B;
+  border : 2px solid #2A363B;
   border-bottom : 1px solid #eee;
-  color : #4B3344;
+  color : #E84A5F;
   font-size : 30px;
   font-family : Inconsolata;
 }
@@ -47,7 +47,7 @@ body {
   margin-left : 135px;
   margin-top : -2px;
   background-color : transparent;
-  color : #4B3344;
+  color : #E84A5F;
   font-size : 30px;
   font-family : Inconsolata;
   border : 0px solid #FEF1fD;
@@ -64,8 +64,8 @@ body {
   left : 50%;
   margin-left : -250px;
   margin-top : -4px;
-  background-color : #FEF1fD;
-  border : 2px solid #FEF1fD;
+  background-color : #2A363B;
+  border : 2px solid #2A363B;
   border-bottom : 1px solid #eee;
   color : #4B3344;
   font-size : 30px;
@@ -83,14 +83,14 @@ body {
   margin-left : 135px;
   margin-top : -2px;
   background-color : transparent;
-  color : #4B3344;
+  color : #E84A5F;
   font-size : 30px;
   font-family : Inconsolata;
   border : 0px solid #FEF1fD;
 }
 
 .img__result {
-  width : 100%;
+  width : 300px;
 }
 
 .result__block {
@@ -99,7 +99,7 @@ body {
   height : 150px;
   float : left;
   border-radius : 4px;
-  background-color : #4B3344;
+  background-color : #E84A5F;
   padding : 10px;
   margin : 5px;
 }
