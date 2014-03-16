@@ -120,7 +120,36 @@ body {
   color : #2A363B;
 }
 
-.single_nav-button{
-  text-decoration : none;
+.single__nav {
+  height  : 25px;
+  clear : both;
+}
+
+.single_nav--button{
+  text-decoration : underline;
   color : #2A363B;
+}
+
+.single__extract {
+  width : 460px;
+  margin : auto;
+  padding :4px;
+  border-radius: 4px;
+  background-color : #FECEA8;
+  margin-top  : 5px;
+}
+
+.single__extract--share {
+    background-color : #99B898;
+    width : 460px;
+    margin : auto;
+    padding :4px;
+    border-radius: 4px;
+    margin-top  : 5px;
+}
+
+#copy-button {
+  border : none;
+  background-color : #FECEA8;
+  text-decoration : underline;
 }

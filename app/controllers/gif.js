@@ -13,7 +13,7 @@ exports.index = function(req, res) {
 	id: id
     }, function(err, results){
 	if (err) throw new Error(err);
-
+  console.log('RESULT' + results);
   var arr = id.split('_');
   var num = parseInt(arr[arr.length - 1].replace('.gif', ''));
   var name = '';

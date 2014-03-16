@@ -7,36 +7,56 @@
 
   <div class='view__container'> 
     <img src="/out/<%- gif %>" />
+    
     <div class='single__nav'>
-      <div style='float : left'>
-        <a class='single_nav-button' href='/gif/<%- previous %>'>&lt; Prev</a>
+      <div style='float : left' >
+        <a class='single_nav--button' href='/gif/<%- previous %>'>&lt; Prev</a>
       </div>
 
       <div style='float : right'>
-        <a class='single_nav-button' href='/gif/<%- next %>'>Next&gt;</a>
+        <a class='single_nav--button' href='/gif/<%- next %>'>Next &gt;</a>
       </div>
     </div>
 
 
-    <div>Embed this gif:
-      <textarea><img src="http://gifquote.com/out/<% gif%>" /&gt;</textarea>
+
+
+    <div class='single__extract'>
+      Embed on your site : <br/>
+
+      <textarea style='width : 450px; border-radius : 2px; height: 20px'>&lt;img src="http://gifquote.com/out/<%- gif%>" /&gt;</textarea>
     </div>
 
-    <iframe src="//www.facebook.com/plugins/like.php?href=http%3A%2F%2Fgifquote.com%2Fgif%2Fterminator_ii_568.gif&amp;width=100&amp;layout=standard&amp;action=like&amp;show_faces=true&amp;share=true&amp;height=80&amp;appId=92601131724" scrolling="no" frameborder="0" style="border:none; overflow:hidden; width:100px; height:80px;" allowTransparency="true"></iframe>
+    <div class='single__extract'>
+      Link to image:    <button id="copy-button" data-clipboard-text="http://gifquote.com/out/<%- gif%>" title="copy">(copy)</button><br/>
+      http://gifquote.com/out/<%- gif%>
+    </div>
 
-    <a href="https://twitter.com/share" class="twitter-share-button" data-lang="en">Tweet</a>
-    <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="https://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+    <div class='single__extract--share'>
+      Share on Social Networks!<br/>
+      <div class="fb-like" data-href="https://developers.facebook.com/docs/plugins/" data-width="200" data-layout="button_count" data-action="like" data-show-faces="true" data-share="true"></div>
+      <a href="https://twitter.com/share" class="twitter-share-button" data-lang="en">Tweet</a>
+       <div class="g-plusone" data-annotation="inline" data-width="50"></div>
+    </div>
 
-    <div class="g-plusone" data-annotation="inline" data-width="120"></div>
 
-  </div>
+ 
+  <script src="../ZeroClipboard.min.js"></script>
+  <script>
+  var client = new ZeroClipboard( document.getElementById("copy-button"), {
+  moviePath: "../ZeroClipboard.swf"
+} );
 
-  <script type="text/javascript">
-   (function() {
-      var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
-      po.src = 'https://apis.google.com/js/platform.js';
-      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
-    })();
+client.on( "load", function(client) {
+  // alert( "movie is loaded" );
+
+  client.on( "complete", function(client, args) {
+    // `this` is the element that was clicked
+    this.innerHTML = 'Link Copied!';
+  } );
+} );
   </script>
+
+
 
 <%- include ../footer.ejs %>
