@@ -301,7 +301,7 @@ if (argv.from) {
     CURRENT = argv.from;
 }
 
-TARGET_DIR = './movieToGif/frames/' + MOVIE_NAME + '/';
+TARGET_DIR = '/mnt/ramdisk/frames/' + MOVIE_NAME + '/';
 
 try {
     var stats = fs.statSync(TARGET_DIR);
