@@ -8,4 +8,8 @@ module.exports = function(app){
 	var search = require('../app/controllers/search');
 	app.get('/search', search.index);
 
+	//search route
+	var gif = require('../app/controllers/gif');
+	app.get('/gif/:id', gif.index);
+
 };

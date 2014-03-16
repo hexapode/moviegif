@@ -1,0 +1,10 @@
+<%- include ../header.ejs %>
+  <%- include ../searchBarInPlace.ejs %>
+
+  <h1>Viewing gif: <%- gif %></h1>
+
+  <img src="/out/<%- gif %>" />
+
+  <div>Embed this gif:</div>
+  <textarea><img src="http://gifquote.com/out/<% gif%>" /&gt;</textarea>
+<%- include ../footer.ejs %>
