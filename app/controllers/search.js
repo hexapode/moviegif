@@ -4,23 +4,30 @@ var client = new elasticsearch.Client({
     log: 'trace'
 });
 
-exports.index = function(req, res){
-  client.search({
-    index: 'srt',
-    q: req.query.q || '*'
-  }, function(err, results){
+exports.index = function(req, res) {
+    client.search({
+	index: 'srt',
+	body: {
+	    query: {
+		term: {
+		    srt: req.query.q || '*'
+		}
+	    },
+	    size: 100
+	}
+    }, function(err, results){
 
-    if (err) {
-      res.render('search/error', { title: 'Search results',
-      query: req.query.q || '*'});
-    }
+	if (err) {
+	    res.render('search/error', { title: 'Search results',
+					 query: req.query.q || '*'});
+	}
 
-    res.render('search/index', {
-      title: 'Search results',
-      query: req.query.q || '*',
-      results: results.hits.hits.map(function (result) {
-        return result._source;
-      })
+	res.render('search/index', {
+	    title: 'Search results',
+	    query: req.query.q || '*',
+	    results: results.hits.hits.map(function (result) {
+		return result._source;
+	    })
+	});
     });
-  });
 };
