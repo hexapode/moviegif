@@ -22,7 +22,10 @@ var BUFFER = [];
 var CURRENT = 0;
 var CURRENT_FRAME = 0;
 var CURRENT_FILES = 0;
-var FRAMES_PER_SUBTITLES = 20;
+var FRAMES_PER_SUBTITLES = 30;
+
+var WIDTH = 480;
+var HEIGHT = 240;
 
 function getSrtObject() {
     var srt = fs.readFileSync(SRT);
@@ -76,7 +79,7 @@ function generateNext() {
     }
 
     var proc = new ffmpeg({ source: MOVIE})
-	.withSize('600x300')
+	.withSize(WIDTH + 'x' + HEIGHT)
 	.takeScreenshots({
 	    count: FRAMES_PER_SUBTITLES,
 	    timemarks: fb
@@ -97,7 +100,7 @@ function generateNext() {
 
 var SUB_GENERATED = 0;
 function generateSubtitle(target, str) {
-    im.convert(['-background', 'transparent', '-font', 'Arial', '-pointsize', '35', '-fill', 'white', '-size', '600x', '-gravity', 'Center', '-stroke', 'black', '-strokewidth', '1.5', 'caption:' + str , target], 
+    im.convert(['-background', 'transparent', '-font', 'Arial', '-pointsize', '35', '-fill', 'white', '-size', WIDTH + 'x', '-gravity', 'Center', '-stroke', 'black', '-strokewidth', '1.5', 'caption:' + str , target], 
 	       function(err, stdout){
 		   if (err) {console.log(err);}
 		   mergeWaterMark();
@@ -184,10 +187,10 @@ function generateAPNG(filenames) {
 
 function generatetheGif() {
     console.log('generateTheGif');
-    var encoder = new GIFEncoder(600, 300);
+    var encoder = new GIFEncoder(WIDTH, HEIGHT);
 
     pngFileStream(TARGET_DIR + '/frame' + CURRENT +'_*.png')
-	.pipe(encoder.createWriteStream({ repeat: 0, delay: delta * 1000 | 0, quality: 10 }))
+	.pipe(encoder.createWriteStream({ repeat: 0, delay: delta * 1000 | 0, quality: 3 }))
 	.pipe(fs.createWriteStream('./movieToGif/out/' + MOVIE_NAME + '_' + (CURRENT + 1) + '.gif'));
 
     ++CURRENT;
@@ -207,6 +210,7 @@ function indexAGif(srt, gif) {
 	id: gif,
 	body: {
 	    srt: srt,
+	    movie: MOVIE_NAME,
 	    gif_name : gif
 	}
     }, function (err, response) {
