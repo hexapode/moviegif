@@ -1,4 +1,4 @@
-<form action="/search">
+<form action="/search" name='form1'>
 
   <input id='text' type="text" name="q" class='searchi__text' value='' placeholder='Search for movie quote
 ' />
@@ -8,6 +8,6 @@
 
 <script>
   document.body.onload = function() {
-    document.getElementById('text').focus();
+    document.form1.q.focus();
   }
 </script>
