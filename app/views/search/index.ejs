@@ -8,7 +8,11 @@
     
     <div class='result__block'> 
       <a href='/gif/<%- result.gif_name %>' style='text-decoration : none'>
-        <img src="/out/<%- result.gif_name %>" class='img__result'/>
+        <div style="background-image : url('/out/<%- result.frame_name || result.gif_name %>')" 
+          onMouseOver="this.style.backgroundImage='url(\'/out/<%- result.gif_name %>\')'"
+          onMouseOut="this.style.backgroundImage='url(\'/out/<%- result.frame_name || result.gif_name %>\')'"
+         class='img__result'></div>
+         <div class='movie__name'> From : <%- result.movie %></div>
       </a>
     </div>
   <% }) %>

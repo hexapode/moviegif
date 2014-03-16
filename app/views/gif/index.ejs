@@ -1,20 +1,27 @@
 <%- include ../header.ejs %>
   <%- include ../searchBarInPlace.ejs %>
 
-  <h1>Viewing gif: <%- gif %></h1>
+  <h1>GifQuote</h1>
+  <h2>Viewing gif: <%- gif %></h2>
 
-  <img src="/out/<%- gif %>" />
 
-  <div>Embed this gif:
-    <textarea><img src="http://gifquote.com/out/<% gif%>" /&gt;</textarea>
+  <div class='view__container'> 
+    <img src="/out/<%- gif %>" />
+
+
+
+    <div>Embed this gif:
+      <textarea><img src="http://gifquote.com/out/<% gif%>" /&gt;</textarea>
+    </div>
+
+    <iframe src="//www.facebook.com/plugins/like.php?href=http%3A%2F%2Fgifquote.com%2Fgif%2Fterminator_ii_568.gif&amp;width=100&amp;layout=standard&amp;action=like&amp;show_faces=true&amp;share=true&amp;height=80&amp;appId=92601131724" scrolling="no" frameborder="0" style="border:none; overflow:hidden; width:100px; height:80px;" allowTransparency="true"></iframe>
+
+    <a href="https://twitter.com/share" class="twitter-share-button" data-lang="en">Tweet</a>
+    <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="https://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+
+    <div class="g-plusone" data-annotation="inline" data-width="120"></div>
+
   </div>
-
-  <iframe src="//www.facebook.com/plugins/like.php?href=http%3A%2F%2Fgifquote.com%2Fgif%2Fterminator_ii_568.gif&amp;width=100&amp;layout=standard&amp;action=like&amp;show_faces=true&amp;share=true&amp;height=80&amp;appId=92601131724" scrolling="no" frameborder="0" style="border:none; overflow:hidden; width:100px; height:80px;" allowTransparency="true"></iframe>
-
-  <a href="https://twitter.com/share" class="twitter-share-button" data-lang="en">Tweet</a>
-  <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="https://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
-
-  <div class="g-plusone" data-annotation="inline" data-width="120"></div>
 
   <script type="text/javascript">
    (function() {

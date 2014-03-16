@@ -92,15 +92,26 @@ body {
 
 .img__result {
   width : 300px;
+  height : 150px;
+  background-size: contain;
 }
 
 .result__block {
   display : block;
   width  : 300px;
-  height : 150px;
   float : left;
   border-radius : 4px;
   background-color : #E84A5F;
-  padding : 10px;
+  padding : 2px;
   margin : 5px;
+}
+
+.movie__name {
+  color : #EEE;
+  font-family : Inconsolata;
+}
+
+.view__container {
+  width : 500px;
+  margin : auto;
 }
