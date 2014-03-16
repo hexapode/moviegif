@@ -77,7 +77,7 @@ function fusion(data) {
             if (str.text.length > 150) {
                 
             }
-            else if (hasPunctuation(data[i + 1].text)) {
+            else if (data[i + 1] && hasPunctuation(data[i + 1].text)) {
                 str.text += ' ' + data[i + 1].text;
                 out.push(str);
             }
@@ -257,7 +257,7 @@ function generatetheGif() {
 	.pipe(fs.createWriteStream('./movieToGif/out/' + MOVIE_NAME + '_' + (CURRENT + 1) + '.gif'));
 
 
-    var is = fs.createReadStream(TARGET_DIR + '/frame' + CURRENT +'_03.png');
+    var is = fs.createReadStream(TARGET_DIR + '/frame' + CURRENT +'_15.png');
     var os = fs.createWriteStream('./movieToGif/out/' + MOVIE_NAME + '_' + (CURRENT + 1) + '.png');
 
     util.pump(is, os, function() {});
