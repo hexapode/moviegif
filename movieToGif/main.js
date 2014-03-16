@@ -24,6 +24,7 @@ var TARGET_DIR;
 
 var BUFFER = [];
 var CURRENT = 0;
+var MAX;
 var CURRENT_FRAME = 0;
 var CURRENT_FILES = 0;
 var FRAMES_PER_SUBTITLES = 30;
@@ -44,7 +45,6 @@ function generateGif() {
 
     data = fusion(data);
     BUFFER = data;
-
 
     generateNext();
 }
@@ -279,7 +279,11 @@ function generatetheGif() {
     console.log('Generate Frame number : ' + CURRENT);
 
     indexAGif(CURRENT_FRAME.text, MOVIE_NAME + '_' + (CURRENT));
-    if (CURRENT < BUFFER.length) {
+    if (MAX) {
+	if (CURRENT < MAX) {
+	    generateNext();
+	}
+    } else if (CURRENT < BUFFER.length) {
 	generateNext();
     }
 }
@@ -311,6 +315,9 @@ MOVIE = argv.movie;
 
 if (argv.from) {
     CURRENT = argv.from;
+}
+if (argv.to) {
+    MAX = argv.to;
 }
 
 TARGET_DIR = '/mnt/ramdisk/frames/' + MOVIE_NAME + '/';
