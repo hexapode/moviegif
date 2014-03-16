@@ -157,17 +157,29 @@ function generateNext() {
 var SUB_GENERATED = 0;
 function generateSubtitle(target, str) {
     var size = 35;
+    var strokeSize = "1.8";
     if (str.length > 30) {
         size = 25;
+	strokeSize = "1.2";
     }
     if (str.length > 60) {
         size = 20;
+	strokeSize = "0.8";
     }
-    im.convert(['-background', 'transparent', '-font', 'Arial', '-pointsize', size, '-fill', 'white', '-size', WIDTH + 'x', '-gravity', 'Center', '-stroke', 'black', '-strokewidth', '1.8', 'caption:' + str , target], 
-	       function(err, stdout){
-		   if (err) {console.log(err);}
-		   mergeWaterMark();
-	       });
+    im.convert([
+	'-background', 'transparent',
+	'-font', 'Arial',
+	'-pointsize', size,
+	'-fill', 'white',
+	'-size', WIDTH + 'x',
+	'-gravity', 'Center',
+	'-stroke', 'black',
+	'-strokewidth', strokeSize,
+	'caption:' + str , target
+    ], function(err, stdout){
+	if (err) {console.log(err);}
+	mergeWaterMark();
+    });
 }
 
 var FUSIONED_WATERMARKS = 0;
