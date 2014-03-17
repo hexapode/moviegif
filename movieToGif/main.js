@@ -7,6 +7,7 @@ var gm = require('gm');
 var im = require('imagemagick');
 var minimist = require('minimist');
 var util = require('util');
+var cp =require('child_process');
 
 
 
@@ -20,7 +21,7 @@ var elasticclient = new elasticsearch.Client({
 var MOVIE_NAME;// = 'arrow';
 var SRT;// = './movieToGif/movies/arrow.srt';
 var MOVIE;// = './movieToGif/movies/arrow.mp4';
-var TARGET_DIR;
+var TARGET_DIR = './movieToGif';
 
 var BUFFER = [];
 var CURRENT = 0;
@@ -40,7 +41,7 @@ function getSrtObject() {
 
 function generateGif() {
     var data = getSrtObject();
-
+    console.log('Str ok');
     data = sanitize(data);
 
     data = fusion(data);
@@ -106,7 +107,45 @@ function movieTimeFromSrtTime(strTime) {
     return s + m + h;
 }
 
+/*
+if (err) {console.log(err);}
+      console.log('screenshots ok!');
+            CURRENT_FILES = filenames;
+      generateAllSubtitles();
+ */
+//  mplayer  -ss 00:10:00 -frames 1 -vo png,outdir=./,prefix=frameNo,z=0 -ao null ./arrow.mp4
+//  mplayer -ss 61.33334333333334 -frames 1 -vo png,outdir=./movieToGif/frames/Arrow/,prefix=Test,z=0 -ao null ./movieToGif/movies/arrow.mp4
+
+function takeAScreenShoot() {
+    console.log('taking screen', SCREEN_ORDER_INDEX);
+    var offset = SCREEN_ORDER_BUFFER[SCREEN_ORDER_INDEX].time;
+    var filename = SCREEN_ORDER_BUFFER[SCREEN_ORDER_INDEX].name;
+    
+    CURRENT_FILES.push(filename + '.png');
+    var proc = cp.exec('mplayer -ss ' + offset + ' -frames 1 -vo png:outdir=' + TARGET_DIR+ ',prefix='  + filename +',z=0 -x 480 -y 240 -ao null ' + MOVIE, function(err) {
+      console.log('shot herre');
+      console.log(err);
+      
+      SCREEN_ORDER_INDEX++;
+      if (SCREEN_ORDER_INDEX < SCREEN_ORDER_BUFFER.length) {
+        takeAScreenShoot();
+      }
+      else {
+        console.log('screenshots ok!');
+        generateAllSubtitles();
+      }
+    });
+
+  proc.stderr.on('data', function (data) {
+    console.log('stderr: ' + data);
+  });
+}
+
+
+var SHOOT_GENERATED = 0;
 var delta = 0;
+var SCREEN_ORDER_BUFFER = [];
+var SCREEN_ORDER_INDEX = 0;
 function generateNext() {
     console.log('Starting Frame ' + CURRENT + ' / ' + BUFFER.length);
 
@@ -116,10 +155,12 @@ function generateNext() {
     var et = movieTimeFromSrtTime(CURRENT_FRAME.endTime);
 
 
-
+    /**
+     * Extract timings from SRT
+     */
     st -= 1.0;
     if (st < 0) {
-	st = 0;
+       st = 0;
     }
     et += 1.0;
     console.log('Subset Length' , et - st);
@@ -128,26 +169,24 @@ function generateNext() {
     var d = (et - st) / FRAMES_PER_SUBTITLES;
     delta = d;
     console.log(delta);
+
+    SHOOT_GENERATED = 0;
+    CURRENT_FILES = [];
+    SCREEN_ORDER_BUFFER = [];
+    var i = 0;
     while (i < FRAMES_PER_SUBTITLES) {
-	var time = st + d * i + 0.00001;
-	fb.push(new String(time));
-	++i;
+      var time = st + d * i + 0.00001;
+      fb.push(time);
+      SCREEN_ORDER_BUFFER.push({
+        time : time,
+        name : 'screenshot_' + MOVIE_NAME + '_' + CURRENT + i,
+        num : i
+      })
+      ++i;
     }
+    SCREEN_ORDER_INDEX = 0;
+    takeAScreenShoot();
 
-    var proc = new ffmpeg({ source: MOVIE})
-	.withSize(WIDTH + 'x' + HEIGHT)
-	.takeScreenshots({
-	    count: FRAMES_PER_SUBTITLES,
-	    timemarks: fb
-	    ,
-	    filename: 'screenshot' + CURRENT + '_%i'
-	}, TARGET_DIR, function(err, filenames) {
-	    if (err) {console.log(err);}
-	    console.log('screenshots ok!');
-            CURRENT_FILES = filenames;
-	    generateAllSubtitles();
-
-	});
 }
 
 /**
@@ -160,71 +199,73 @@ function generateSubtitle(target, str) {
     var strokeSize = "1.8";
     if (str.length > 30) {
         size = 25;
-	strokeSize = "1.2";
+  strokeSize = "1.2";
     }
     if (str.length > 60) {
         size = 20;
-	strokeSize = "0.8";
+  strokeSize = "0.8";
     }
     im.convert([
-	'-background', 'transparent',
-	'-font', 'Arial',
-	'-pointsize', size,
-	'-fill', 'white',
-	'-size', WIDTH + 'x',
-	'-gravity', 'Center',
-	'-stroke', 'black',
-	'-strokewidth', strokeSize,
-	'caption:' + str , target
+  '-background', 'transparent',
+  '-font', 'Arial',
+  '-pointsize', size,
+  '-fill', 'white',
+  '-size', WIDTH + 'x',
+  '-gravity', 'Center',
+  '-stroke', 'black',
+  '-strokewidth', strokeSize,
+  'caption:' + str , target
     ], function(err, stdout){
-	if (err) {console.log(err);}
-	mergeWaterMark();
+  if (err) {console.log(err);}
+  mergeWaterMark();
     });
 }
 
 var FUSIONED_WATERMARKS = 0;
 function mergeWaterMark() {
+    console.log('wattermarks');
     FUSIONED_WATERMARKS = 0;
     var i = 0;
     while (i < CURRENT_FILES.length) {
-	//   console.log(TARGET_DIR + CURRENT_FILES[i]);
-	im.convert([TARGET_DIR + CURRENT_FILES[i],
+  //   console.log(TARGET_DIR + CURRENT_FILES[i]);
+  im.convert([TARGET_DIR + CURRENT_FILES[i],
                     './movieToGif/watermark.png',
                     '-gravity', 'west',
                     '-composite',  TARGET_DIR + CURRENT_FILES[i]
-		   ], function(err, stdout) {
-		       if (err) {
-			   console.log(err);
-		       }
-		       FUSIONED_WATERMARKS++;
-		       if (FUSIONED_WATERMARKS == FRAMES_PER_SUBTITLES) {
-			   mergeSubtitle();
-		       }
-		   });
-	++i;
+       ], function(err, stdout) {
+           if (err) {
+         console.log(err);
+           }
+           FUSIONED_WATERMARKS++;
+           if (FUSIONED_WATERMARKS == FRAMES_PER_SUBTITLES) {
+         mergeSubtitle();
+           }
+       });
+  ++i;
     }
 };
 
 //  sudo convert frame0_00.png srt0.png -gravity south -composite t.png
 var FUSIONED_SUBTITLES = 0;
 function mergeSubtitle() {
+    console.log('merge subs');
     FUSIONED_SUBTITLES = 0;
     var i = 0;
     while (i < CURRENT_FILES.length) {
-	//   console.log(TARGET_DIR + CURRENT_FILES[i]);
+  //   console.log(TARGET_DIR + CURRENT_FILES[i]);
         im.convert([TARGET_DIR + CURRENT_FILES[i],
                     TARGET_DIR + 'srt' + CURRENT + '.png',
                     '-gravity', 'south',
                     '-composite',  TARGET_DIR + CURRENT_FILES[i]
-		   ], function(err, stdout) {
-		       if (err) {
-			   console.log(err);
-		       }
-		       FUSIONED_SUBTITLES++;
-		       if (FUSIONED_SUBTITLES == FRAMES_PER_SUBTITLES) {
-			   generateAPNG(CURRENT_FILES);
-		       }
-		   });
+       ], function(err, stdout) {
+           if (err) {
+         console.log(err);
+           }
+           FUSIONED_SUBTITLES++;
+           if (FUSIONED_SUBTITLES == FRAMES_PER_SUBTITLES) {
+         generateAPNG(CURRENT_FILES);
+           }
+       });
         ++i;
     }
 }
@@ -242,21 +283,21 @@ function generateAPNG(filenames) {
     FILE_GENERATED = 0;
     var i = 0;
     while (i < filenames.length) {
-	var numName = i;
-	if (numName < 10) {
-	    numName = '0' + numName;
-	}
-	gm(TARGET_DIR + filenames[i])
-	    .noProfile()
-	    .write(TARGET_DIR + 'frame' + CURRENT + '_' +numName +  '.png', function (err) {
-		if (err) console.log('gm', err);
-		//  console.log(err);
-		FILE_GENERATED++;
-		if (FILE_GENERATED === FRAMES_PER_SUBTITLES) {
-		    generatetheGif();
-		}
-	    });
-	++i;
+  var numName = i;
+  if (numName < 10) {
+      numName = '0' + numName;
+  }
+  gm(TARGET_DIR + filenames[i])
+      .noProfile()
+      .write(TARGET_DIR + 'frame' + CURRENT + '_' +numName +  '.png', function (err) {
+    if (err) console.log('gm', err);
+    //  console.log(err);
+    FILE_GENERATED++;
+    if (FILE_GENERATED === FRAMES_PER_SUBTITLES) {
+        generatetheGif();
+    }
+      });
+  ++i;
     }
 }
 
@@ -265,8 +306,8 @@ function generatetheGif() {
     var encoder = new GIFEncoder(WIDTH, HEIGHT);
 
     pngFileStream(TARGET_DIR + '/frame' + CURRENT +'_*.png')
-	.pipe(encoder.createWriteStream({ repeat: 0, delay: delta * 1000 | 0, quality: 3 }))
-	.pipe(fs.createWriteStream('./movieToGif/out/' + MOVIE_NAME + '_' + (CURRENT + 1) + '.gif'));
+  .pipe(encoder.createWriteStream({ repeat: 0, delay: delta * 1000 | 0, quality: 3 }))
+  .pipe(fs.createWriteStream('./movieToGif/out/' + MOVIE_NAME + '_' + (CURRENT + 1) + '.gif'));
 
 
     var is = fs.createReadStream(TARGET_DIR + '/frame' + CURRENT +'_15.png');
@@ -280,29 +321,29 @@ function generatetheGif() {
 
     indexAGif(CURRENT_FRAME.text, MOVIE_NAME + '_' + (CURRENT));
     if (MAX) {
-	if (CURRENT < MAX) {
-	    generateNext();
-	}
+  if (CURRENT < MAX) {
+      generateNext();
+  }
     } else if (CURRENT < BUFFER.length) {
-	generateNext();
+  generateNext();
     }
 }
 
 function indexAGif(srt, gif) {
     elasticclient.create({
-	index: 'srt',
-	type: 'srt',
-	id: gif,
-	body: {
-	    srt: srt,
-	    movie: MOVIE_NAME,
+  index: 'srt',
+  type: 'srt',
+  id: gif,
+  body: {
+      srt: srt,
+      movie: MOVIE_NAME,
         gif_name : gif +'.gif',
-	    frame_name : gif +'.png',
-	}
+      frame_name : gif +'.png',
+  }
     }, function (err, response) {
-	if (err) {
-	    console.log('indexation : ', err)
-	}
+  if (err) {
+      console.log('indexation : ', err)
+  }
     });
 
 }
@@ -320,7 +361,8 @@ if (argv.to) {
     MAX = argv.to;
 }
 
-TARGET_DIR = '/mnt/ramdisk/frames/' + MOVIE_NAME + '/';
+// TARGET_DIR = '/mnt/ramdisk/frames/' + MOVIE_NAME + '/';
+ TARGET_DIR = './movieToGif/frames/' + MOVIE_NAME + '/';
 
 try {
     var stats = fs.statSync(TARGET_DIR);
@@ -328,7 +370,7 @@ try {
     console.log('stats:', stats);
 
     if (!stats || !stats.isDirectory()) {
-	fs.mkdirSync(TARGET_DIR);
+  fs.mkdirSync(TARGET_DIR);
     }
 } catch (e) {
     console.log(TARGET_DIR + ': no such file or directory, creating...');
@@ -336,4 +378,5 @@ try {
     fs.mkdirSync(TARGET_DIR);
 }
 
+console.log('starting Generation');
 generateGif();
