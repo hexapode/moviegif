@@ -11,50 +11,303 @@ var minimist = require('minimist');
 var util = require('util');
 var cp =require('child_process');
 
-
-
-
 var elasticsearch = require('elasticsearch');
 var elasticclient = new elasticsearch.Client({
     host: 'localhost:9200',
     log: 'trace'
 });
 
+// CONFIG
+var FRAMES_PER_GIF = 30;
+var FRAME_RATE = 8;
+var WIDTH = 480;
+var HEIGHT = 240;
+// CONFIG
+
 var MOVIE_NAME;// = 'arrow';
 var SRT;// = './movieToGif/movies/arrow.srt';
 var MOVIE;// = './movieToGif/movies/arrow.mp4';
-var TARGET_DIR = './movieToGif/';
+var TEMP_DIR = './movieToGif/';
+var OUT_DIR = './movieToGif/out/';
 
 var SUBTITLES = [];
-var CURRENT = 0;
+var CURRENT = 1;
 var MAX;
-var CURRENT_FRAME = 0;
-var CURRENT_FILES = 0;
-var FRAMES_PER_SUBTITLES = 30;
-var FRAME_RATE = 8;
 
-var WIDTH = 480;
-var HEIGHT = 240;
+var CURRENT_SUBTITLE = {};
+var SCREENSHOTS_FILES = [];
 
-function getSrtObject() {
-    var srt = fs.readFileSync(SRT);
-    var data = parser.fromSrt(srt.toString());
-    return data;
+function indexGif(callback) {
+    var srt = CURRENT_SUBTITLE.text;
+    var gif = MOVIE_NAME + '_' + CURRENT;
+
+    console.log('indexGif');
+
+    elasticclient.create({
+        index: 'srt',
+        type: 'srt',
+        id: gif,
+        body: {
+            srt: srt,
+            movie: MOVIE_NAME,
+            gif_name : gif + '.gif',
+            frame_name : gif + '.png',
+        }
+    }, function (err, response) {
+        if (err) console.error('indexation, error:', err);
+
+        callback();
+    });
 }
 
-function generateGif() {
-    var data = getSrtObject();
+function cleanUpFiles(callback) {
+    var files = fs.readdirSync(TEMP_DIR);
 
-    console.log('Str ok');
-
-    data = sanitize(data);
-
-    data = fusion(data);
-    SUBTITLES = data;
-
-    generateNext();
+    async.each(files.map(function (file) { return TEMP_DIR + file; }), fs.unlink, callback);
 }
 
+function generateTheGif(callback) {
+    console.log('generateTheGif');
+
+    var encoder = new GIFEncoder(WIDTH, HEIGHT);
+
+    //var frames = FRAME_FILES.join(' ');
+    var frames = TEMP_DIR + 'frame' + CURRENT + '_??.png';
+
+    console.log('for pattern:', frames);
+
+    var gifName  = OUT_DIR + MOVIE_NAME + '_' + CURRENT + '.gif';
+
+    /*
+    pngFileStream(frames)
+        .pipe(encoder.createWriteStream({ repeat: 0, delay: 1000 / FRAME_RATE, quality: 3 }))
+        .pipe(fs.createWriteStream(gifName))
+
+	.on('end', function () {
+        console.log('pngFileStream pipe end');
+*/
+    im.convert([
+	frames,
+	' -delay ' + (1000 / FRAME_RATE),
+	' -loop 0',
+	gifName
+    ], function () {
+        var is = fs.createReadStream(TEMP_DIR + 'frame' + CURRENT + '_15.png');
+        var os = fs.createWriteStream(OUT_DIR + MOVIE_NAME + '_' + CURRENT + '.png');
+
+        is.pipe(os);
+        is.on('end', function () {
+            console.log('15th frame pipe end');
+
+            callback();
+        });
+    });
+}
+
+var FRAME_FILES;
+function convertJPGsToPNGs(callback) {
+    console.log('convertJPGsToPNGs');
+
+    var filenames = SCREENSHOTS_FILES;
+
+    var i = 0;
+    var frameFile = '';
+
+    async.mapSeries(filenames, function (filename, callback) {
+        var numName = (i < 10 ? '0' : '') + i;
+
+        frameFile = TEMP_DIR + 'frame' + CURRENT + '_' + numName + '.png';
+
+        gm(filename)
+            .noProfile()
+            .write(frameFile, function (err) {
+                if (err) return callback(err);
+
+                callback(null, frameFile);
+            });
+        ++i;
+    }, function (err, frameFiles) {
+        if (err) return console.error('convertJPGsToPNGs, error:', err);
+
+        FRAME_FILES = frameFiles;
+
+        callback();
+    });
+}
+
+//  sudo convert frame0_00.png srt0.png -gravity south -composite t.png
+var FUSIONED_SUBTITLES = 0;
+function mergeSubtitle(callback) {
+    console.log('merge subs');
+
+    FUSIONED_SUBTITLES = 0;
+    var i = 0;
+    while (i < SCREENSHOTS_FILES.length) {
+        im.convert([
+            SCREENSHOTS_FILES[i],
+            TEMP_DIR + 'srt' + CURRENT + '.png',
+            '-gravity', 'south',
+            '-composite', SCREENSHOTS_FILES[i]
+        ], function(err, stdout) {
+            if (err) return console.error('mergeSubtitle, error:', err);
+
+            FUSIONED_SUBTITLES++;
+            if (FUSIONED_SUBTITLES == FRAMES_PER_GIF) {
+                callback();
+            }
+        });
+        ++i;
+    }
+}
+
+function mergeWaterMark(callback) {
+    console.log('watermarks');
+
+    async.each(SCREENSHOTS_FILES, function (file, callback) {
+        im.convert([
+            file,
+            './movieToGif/watermark.png',
+            '-gravity', 'west',
+            '-composite', file
+        ], callback);
+    }, function (err) {
+        if (err) return console.error('mergeWaterMark, error:', err);
+
+        callback();
+    });
+};
+
+/*
+  if (err) {console.error(err);}
+  console.log('screenshots ok!');
+  SCREENSHOTS_FILES = filenames;
+  generateAllSubtitles();
+*/
+//  mplayer  -ss 00:10:00 -frames 1 -vo png,outdir=./,prefix=frameNo,z=0 -ao null ./arrow.mp4
+//  mplayer -ss 61.33334333333334 -frames 1 -vo png,outdir=./movieToGif/frames/Arrow/,prefix=Test,z=0 -ao null ./movieToGif/movies/arrow.mp4
+
+//time ffmpeg -async 1 -ss 00:00:10.001 -i James.Bond.Quantum.of.Solace.2008.720p.BRrip.x264.YIFY.mp4 -t 3 -s 400x240 -r 10  x%d.jp
+
+function takeAllScreenShots(startTime, duration, callback) {
+    /*
+      var mplayerCommand = 'mplayer -ss ' + offset +
+      ' -frames 1' +
+      ' -vf scale=' + WIDTH + ':' + HEIGHT +
+      ' -vo png:outdir=' + TEMP_DIR + ',z=0' +
+      ' -ao null ' +
+      MOVIE;
+    */
+
+    var ffmpegCommand = 'ffmpeg -ss ' + startTime
+        + ' -i ' + MOVIE
+        + ' -t ' + duration
+        + ' -s ' + WIDTH + 'x' + HEIGHT
+        + ' -r ' + FRAME_RATE
+        + ' ' + TEMP_DIR + 'screenshot_' + MOVIE_NAME + '_' + CURRENT + '_%d.jpg';
+
+    console.log(ffmpegCommand);
+    console.log(SCREENSHOTS_FILES);
+
+    cp.exec(ffmpegCommand, callback);
+}
+
+/**
+   convert -background transparent -font Helvetica -pointsize 30 -fill white -size 600x  -gravity Center -stroke black -strokewidth 1 caption:'Hsata la visita babidta. LOrem PSum psum it sum'  new.png
+*/
+
+function generateSubtitle(callback) {
+    var target = TEMP_DIR + 'srt' + CURRENT + '.png';
+    var str = SUBTITLES[CURRENT].text;
+
+    var size = 35;
+    var strokeSize = "1.8";
+    if (str.length > 30) {
+        size = 25;
+        strokeSize = "1.2";
+    }
+    if (str.length > 60) {
+        size = 20;
+        strokeSize = "0.8";
+    }
+    im.convert([
+        '-background', 'transparent',
+        '-font', 'Arial',
+        '-pointsize', size,
+        '-fill', 'white',
+        '-size', WIDTH + 'x',
+        '-gravity', 'Center',
+        '-stroke', 'black',
+        '-strokewidth', strokeSize,
+        'caption:' + str , target
+    ], function(err, stdout) {
+        if (err) return console.error(err);
+
+        callback();
+    });
+}
+
+function movieTimeFromSrtTime(strTime) {
+    // '00:41:56,520'
+
+    var h = strTime.substr(0, 2) * 60 * 60;
+    var m = strTime.substr(3, 2) * 60;
+    var s = strTime.substr(6, 2) * 1;
+
+    return s + m + h;
+}
+
+var delta = 0;
+function generateNext(callback) {
+    console.log('Starting Subtitle ' + CURRENT + ' / ' + SUBTITLES.length);
+
+    CURRENT_SUBTITLE = SUBTITLES[CURRENT];
+
+    var st = movieTimeFromSrtTime(CURRENT_SUBTITLE.startTime);
+    var et = movieTimeFromSrtTime(CURRENT_SUBTITLE.endTime);
+
+    /**
+     * Extract timings from SRT
+     */
+    st -= 1.0;
+    if (st < 0) {
+        st = 0;
+    }
+    et += 1.0;
+
+    console.log('Subtitle Length' , et - st);
+
+    var i = 0;
+    var fb = [];
+    FRAMES_PER_GIF = (et - st) * FRAME_RATE;
+
+    console.log('FRAMES COUNT', FRAMES_PER_GIF);
+
+    var d = (et - st) / FRAMES_PER_GIF;
+    delta = d;
+
+    console.log(delta);
+
+    SCREENSHOTS_FILES = [];
+    for (i = 0; i < FRAMES_PER_GIF; ++i) {
+        SCREENSHOTS_FILES.push(TEMP_DIR + 'screenshot_' + MOVIE_NAME + '_' + CURRENT + '_' + (i+1) + '.jpg');
+    }
+
+    takeAllScreenShots(
+        st,
+        et - st,
+        function () {
+            async.series([
+                generateSubtitle,
+                mergeWaterMark,
+                mergeSubtitle,
+                convertJPGsToPNGs,
+                generateTheGif,
+                cleanUpFiles,
+                indexGif
+            ], callback);
+        }
+    );
+}
 
 function hasPunctuation(str) {
     console.log(str)
@@ -103,265 +356,45 @@ function sanitize(data) {
     return data;
 }
 
-function movieTimeFromSrtTime(strTime) {
-    // '00:41:56,520'
-
-    var h = strTime.substr(0, 2) * 60 * 60;
-    var m = strTime.substr(3, 2) * 60;
-    var s = strTime.substr(6, 2) * 1;
-
-    return s + m + h;
+function getSrtObject() {
+    var srt = fs.readFileSync(SRT);
+    var data = parser.fromSrt(srt.toString());
+    return data;
 }
 
-/*
-  if (err) {console.error(err);}
-  console.log('screenshots ok!');
-  CURRENT_FILES = filenames;
-  generateAllSubtitles();
-*/
-//  mplayer  -ss 00:10:00 -frames 1 -vo png,outdir=./,prefix=frameNo,z=0 -ao null ./arrow.mp4
-//  mplayer -ss 61.33334333333334 -frames 1 -vo png,outdir=./movieToGif/frames/Arrow/,prefix=Test,z=0 -ao null ./movieToGif/movies/arrow.mp4
+function generateGif() {
+    var data = getSrtObject();
 
-//time ffmpeg -async 1 -ss 00:00:10.001 -i James.Bond.Quantum.of.Solace.2008.720p.BRrip.x264.YIFY.mp4 -t 3 -s 400x240 -r 10  x%d.jp
+    console.log('Str ok');
 
-function takeAllScreenShoot(startTime, duration) {
-    /*
-      var mplayerCommand = 'mplayer -ss ' + offset +
-      ' -frames 1' +
-      ' -vf scale=' + WIDTH + ':' + HEIGHT +
-      ' -vo png:outdir=' + TARGET_DIR + ',z=0' +
-      ' -ao null ' +
-      MOVIE;
-    */
+    data = sanitize(data);
 
-    var ffmpegCommand = 'ffmpeg -ss ' + startTime
-        + ' -i ' + MOVIE
-        + ' -t ' + duration
-        + ' -s ' + WIDTH + 'x' + HEIGHT
-        + ' -r ' + FRAME_RATE
-        + ' ' + TARGET_DIR + 'screenshot_' + MOVIE_NAME + '_' + CURRENT + '_%d.jpg';
+    data = fusion(data);
+    SUBTITLES = data;
 
-    console.log(ffmpegCommand);
-    console.log(CURRENT_FILES);
+    generateNext(function loop() {
+        console.log('generateNext callback');
 
-    var proc = cp.exec(
-        ffmpegCommand,
-        function(err) {
-            console.log('shot here');
-            console.error(err);
+        if (MAX) {
+            console.log('MAX!', CURRENT, '/', MAX);
 
-            generateAllSubtitles();
-        });
-}
+            if (CURRENT < MAX) {
+                ++CURRENT;
 
-var delta = 0;
-function generateNext() {
-    console.log('Starting Subtitle ' + CURRENT + ' / ' + SUBTITLES.length);
+                generateNext(loop);
+            } else {
+                elasticclient.disconnect();
+            }
+        } else if (CURRENT < SUBTITLES.length) {
+            console.log(CURRENT, '/', SUBTITLES.LENGTH);
 
-    CURRENT_FRAME = SUBTITLES[CURRENT];
+            ++CURRENT;
 
-    var st = movieTimeFromSrtTime(CURRENT_FRAME.startTime);
-    var et = movieTimeFromSrtTime(CURRENT_FRAME.endTime);
-
-    /**
-     * Extract timings from SRT
-     */
-    st -= 1.0;
-    if (st < 0) {
-        st = 0;
-    }
-    et += 1.0;
-
-    console.log('Subtitle Length' , et - st);
-
-    var i = 0;
-    var fb = [];
-    FRAMES_PER_SUBTITLES = (et - st) * FRAME_RATE;
-
-    console.log('FRAMES COUNT', FRAMES_PER_SUBTITLES);
-
-    var d = (et - st) / FRAMES_PER_SUBTITLES;
-    delta = d;
-
-    console.log(delta);
-
-    CURRENT_FILES = [];
-    var i = 0;
-    while (i < FRAMES_PER_SUBTITLES) {
-        CURRENT_FILES.push(TARGET_DIR + 'screenshot_' + MOVIE_NAME + '_' + CURRENT + '_' + (i+1) + '.jpg');
-        ++i;
-    }
-    takeAllScreenShoot(st, et - st);
-}
-
-/**
-   convert -background transparent -font Helvetica -pointsize 30 -fill white -size 600x  -gravity Center -stroke black -strokewidth 1 caption:'Hsata la visita babidta. LOrem PSum psum it sum'  new.png
-*/
-
-var SUB_GENERATED = 0;
-function generateSubtitle(target, str) {
-    var size = 35;
-    var strokeSize = "1.8";
-    if (str.length > 30) {
-        size = 25;
-        strokeSize = "1.2";
-    }
-    if (str.length > 60) {
-        size = 20;
-        strokeSize = "0.8";
-    }
-    im.convert([
-        '-background', 'transparent',
-        '-font', 'Arial',
-        '-pointsize', size,
-        '-fill', 'white',
-        '-size', WIDTH + 'x',
-        '-gravity', 'Center',
-        '-stroke', 'black',
-        '-strokewidth', strokeSize,
-        'caption:' + str , target
-    ], function(err, stdout) {
-        if (err) return console.error(err);
-
-        mergeWaterMark();
-    });
-}
-
-function mergeWaterMark() {
-    console.log('watermarks');
-
-    async.each(CURRENT_FILES, function (file, callback) {
-        im.convert([
-            file,
-            './movieToGif/watermark.png',
-            '-gravity', 'west',
-            '-composite', file
-        ], callback);
-    }, function (err) {
-        if (err) return console.error('mergeWaterMark, error:', err);
-
-        mergeSubtitle();
-    });
-};
-
-//  sudo convert frame0_00.png srt0.png -gravity south -composite t.png
-var FUSIONED_SUBTITLES = 0;
-function mergeSubtitle() {
-    console.log('merge subs');
-
-    FUSIONED_SUBTITLES = 0;
-    var i = 0;
-    while (i < CURRENT_FILES.length) {
-        im.convert([CURRENT_FILES[i],
-                    TARGET_DIR + 'srt' + CURRENT + '.png',
-                    '-gravity', 'south',
-                    '-composite', CURRENT_FILES[i]
-                   ], function(err, stdout) {
-                       if (err) return console.error('mergeSubtitle, error:', err);
-
-                       FUSIONED_SUBTITLES++;
-                       if (FUSIONED_SUBTITLES == FRAMES_PER_SUBTITLES) {
-                           convertJPGsToPNGs(CURRENT_FILES);
-                       }
-                   });
-        ++i;
-    }
-}
-
-function generateAllSubtitles() {
-    console.log('generateTheSub');
-
-    SUB_GENERATED = 0;
-    generateSubtitle(TARGET_DIR + 'srt' + CURRENT + '.png', SUBTITLES[CURRENT].text);
-}
-
-var CURRENT_FRAMES;
-function convertJPGsToPNGs(filenames) {
-    console.log('convertJPGsToPNGs');
-
-    var i = 0;
-    var frameFile = '';
-
-    async.mapSeries(filenames, function (filename, callback) {
-        var numName = (i < 10 ? '0' : '') + i;
-
-        frameFile = TARGET_DIR + 'frame' + CURRENT + '_' + numName + '.png';
-
-        gm(filename)
-            .noProfile()
-            .write(frameFile, function (err) {
-                if (err) return callback(err);
-
-                callback(null, frameFile);
-            });
-        ++i;
-    }, function (err, frameFiles) {
-        if (err) return console.error('convertJPGsToPNGs, error:', err);
-
-        CURRENT_FRAMES = frameFiles;
-
-        generatetheGif();
-    });
-}
-
-function generatetheGif() {
-    console.log('generateTheGif');
-
-    var encoder = new GIFEncoder(WIDTH, HEIGHT);
-
-    //var frames = CURRENT_FRAMES.join(' ');
-    var frames = TARGET_DIR + 'frame' + CURRENT + '_??.png';
-
-    console.log('for pattern:', frames);
-
-    pngFileStream(frames)
-        .pipe(encoder.createWriteStream({ repeat: 0, delay: 1000 / FRAME_RATE, quality: 3 }))
-        .pipe(fs.createWriteStream('./movieToGif/out/' + MOVIE_NAME + '_' + (CURRENT + 1) + '.gif'));
-
-
-    var is = fs.createReadStream(TARGET_DIR + 'frame' + CURRENT +'_15.png');
-    var os = fs.createWriteStream('./movieToGif/out/' + MOVIE_NAME + '_' + (CURRENT + 1) + '.png');
-
-    util.pump(is, os, function() {});
-
-
-    ++CURRENT;
-    console.log('Generate Frame number : ' + CURRENT);
-
-    indexAGif(CURRENT_FRAME.text, MOVIE_NAME + '_' + (CURRENT));
-
-    if (false) {
-	var files = fs.readdirSync(TARGET_DIR);
-	files = files
-	    .map(function (file) { return TARGET_DIR + file; });
-	console.log(files);
-	files.map(fs.unlinkSync);
-    }
-
-    if (MAX) {
-        if (CURRENT < MAX) {
-            generateNext();
+            generateNext(loop);
+        } else {
+            elasticclient.disconnect();
         }
-    } else if (CURRENT < SUBTITLES.length) {
-        generateNext();
-    }
-}
-
-function indexAGif(srt, gif) {
-    elasticclient.create({
-        index: 'srt',
-        type: 'srt',
-        id: gif,
-        body: {
-            srt: srt,
-            movie: MOVIE_NAME,
-            gif_name : gif +'.gif',
-            frame_name : gif +'.png',
-        }
-    }, function (err, response) {
-        if (err) return console.error('indexation, error:', err);
     });
-
 }
 
 var argv = minimist(process.argv.slice(2));
@@ -377,21 +410,21 @@ if (argv.to) {
     MAX = argv.to;
 }
 
-// TARGET_DIR = '/mnt/ramdisk/frames/' + MOVIE_NAME + '/';
-TARGET_DIR = './movieToGif/frames/' + MOVIE_NAME + '/';
+// TEMP_DIR = '/mnt/ramdisk/frames/' + MOVIE_NAME + '/';
+TEMP_DIR = './movieToGif/frames/' + MOVIE_NAME + '/';
 
 try {
-    var stats = fs.statSync(TARGET_DIR);
+    var stats = fs.statSync(TEMP_DIR);
 
     console.log('stats:', stats);
 
     if (!stats || !stats.isDirectory()) {
-        fs.mkdirSync(TARGET_DIR);
+        fs.mkdirSync(TEMP_DIR);
     }
 } catch (e) {
-    console.log(TARGET_DIR + ': no such file or directory, creating...');
+    console.log(TEMP_DIR + ': no such file or directory, creating...');
 
-    fs.mkdirSync(TARGET_DIR);
+    fs.mkdirSync(TEMP_DIR);
 }
 
 console.log('starting Generation');
