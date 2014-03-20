@@ -25,6 +25,7 @@ var HEIGHT = 240;
 // CONFIG
 
 var MOVIE_NAME;
+var MOVIE_BEAUTY;
 var SRT;
 var MOVIE;
 
@@ -51,8 +52,9 @@ function indexGif(callback) {
         body: {
             srt: srt,
             movie: MOVIE_NAME,
-            gif_name : gif + '.gif',
-            frame_name : gif + '.png',
+            gif_name: gif + '.gif',
+            frame_name: gif + '.png',
+            movie_name: MOVIE_BEAUTY,
         }
     }, function (err, response) {
         if (err) console.error('indexation, error:', err);
@@ -200,24 +202,25 @@ function generateSubtitle(callback) {
     var target = TEMP_DIR + 'srt' + CURRENT + '.png';
     var str = SUBTITLES[CURRENT].text;
 
-    var size = 35;
+    var size = 32;
     var strokeSize = "1.8";
-    if (str.length > 30) {
-        size = 25;
-        strokeSize = "1.2";
-    }
+
     if (str.length > 60) {
-        size = 20;
-        strokeSize = "0.8";
+        size = 26;
+        strokeSize = "1.0";
+    }
+    else if (str.length > 30) {
+        size = 28;
+        strokeSize = "1.2";
     }
     im.convert([
         '-background', 'transparent',
-        '-font', 'Arial',
+        '-font', 'Helvetica Bold',
         '-pointsize', size,
-        '-fill', 'white',
+        '-fill', '#ffffff',
         '-size', WIDTH + 'x',
         '-gravity', 'Center',
-        '-stroke', 'black',
+        '-stroke', '#111111',
         '-strokewidth', strokeSize,
         'caption:' + str , target
     ], function(err, stdout) {
@@ -389,6 +392,12 @@ var argv = minimist(process.argv.slice(2));
 MOVIE_NAME = argv.name;
 SRT = argv.srt;
 MOVIE = argv.movie;
+MOVIE_BEAUTY = argv.beauty;
+
+if (!MOVIE_BEAUTY) {
+    console.log('argument --beauty "Beautified name" required!');
+    process.exit(1);
+}
 
 if (argv.from) {
     CURRENT = argv.from;
