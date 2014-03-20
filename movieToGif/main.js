@@ -24,6 +24,7 @@ var MOVIE_NAME;// = 'arrow';
 var SRT;// = './movieToGif/movies/arrow.srt';
 var MOVIE;// = './movieToGif/movies/arrow.mp4';
 var TARGET_DIR = './movieToGif/';
+var MOVIE_BEAUTY = '';
 
 var SUBTITLES = [];
 var CURRENT = 0;
@@ -98,6 +99,9 @@ function sanitize(data) {
         var str = data[i].text;
         var regex = /(<([^>]+)>)/ig;
         str = str.replace(regex, "");
+	regex = /(\[([^>]+)\])/ig;
+	str = str.replace(regex, "");
+	str = str.replace(/\n/g, " ");
         data[i].text = str;
     }
     return data;
@@ -200,24 +204,24 @@ function generateNext() {
 
 var SUB_GENERATED = 0;
 function generateSubtitle(target, str) {
-    var size = 35;
+    var size = 32;
     var strokeSize = "1.8";
     if (str.length > 30) {
-        size = 25;
+        size = 28;
         strokeSize = "1.2";
     }
     if (str.length > 60) {
-        size = 20;
-        strokeSize = "0.8";
+        size = 26;
+        strokeSize = "1.0";
     }
     im.convert([
         '-background', 'transparent',
-        '-font', 'Arial',
+        '-font', 'Helvetica Bold',
         '-pointsize', size,
-        '-fill', 'white',
+        '-fill', '#ffffff',
         '-size', WIDTH + 'x',
         '-gravity', 'Center',
-        '-stroke', 'black',
+        '-stroke', '#111111',
         '-strokewidth', strokeSize,
         'caption:' + str , target
     ], function(err, stdout) {
@@ -300,11 +304,11 @@ function convertJPGsToPNGs(filenames) {
 
         CURRENT_FRAMES = frameFiles;
 
-        generatetheGif();
+        generateTheGif();
     });
 }
 
-function generatetheGif() {
+function generateTheGif() {
     console.log('generateTheGif');
 
     var encoder = new GIFEncoder(WIDTH, HEIGHT);
@@ -315,7 +319,7 @@ function generatetheGif() {
     console.log('for pattern:', frames);
 
     pngFileStream(frames)
-        .pipe(encoder.createWriteStream({ repeat: 0, delay: 1000 / FRAME_RATE, quality: 3 }))
+        .pipe(encoder.createWriteStream({ repeat: 0, delay: 1000 / FRAME_RATE | 0, quality: 3 }))
         .pipe(fs.createWriteStream('./movieToGif/out/' + MOVIE_NAME + '_' + (CURRENT + 1) + '.gif'));
 
 
@@ -357,7 +361,8 @@ function indexAGif(srt, gif) {
             movie: MOVIE_NAME,
             gif_name : gif +'.gif',
             frame_name : gif +'.png',
-        }
+            movie_name : MOVIE_BEAUTY
+	}
     }, function (err, response) {
         if (err) return console.error('indexation, error:', err);
     });
@@ -369,6 +374,11 @@ var argv = minimist(process.argv.slice(2));
 MOVIE_NAME = argv.name;
 SRT = argv.srt;
 MOVIE = argv.movie;
+MOVIE_BEAUTY = argv.beauty;
+
+if (!MOVIE_BEAUTY) {
+    console.log('--beauty "Beauty name" Require!');
+}
 
 if (argv.from) {
     CURRENT = argv.from;
