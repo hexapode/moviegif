@@ -5,7 +5,7 @@ var parser = require('subtitles-parser');
 var ffmpeg = require('fluent-ffmpeg');
 var GIFEncoder = require('gifencoder');
 var pngFileStream = require('png-file-stream');
-var gm = require('gm');
+
 var im = require('imagemagick');
 var minimist = require('minimist');
 var util = require('util');
@@ -14,7 +14,7 @@ var cp =require('child_process');
 var elasticsearch = require('elasticsearch');
 var elasticclient = new elasticsearch.Client({
     host: 'localhost:9200',
-    log: 'trace'
+//    log: 'trace'
 });
 
 // CONFIG
@@ -24,18 +24,19 @@ var WIDTH = 480;
 var HEIGHT = 240;
 // CONFIG
 
-var MOVIE_NAME;// = 'arrow';
-var SRT;// = './movieToGif/movies/arrow.srt';
-var MOVIE;// = './movieToGif/movies/arrow.mp4';
+var MOVIE_NAME;
+var SRT;
+var MOVIE;
+
 var TEMP_DIR = './movieToGif/';
 var OUT_DIR = './movieToGif/out/';
 
 var SUBTITLES = [];
-var CURRENT = 1;
+var CURRENT = 0;
 var MAX;
 
 var CURRENT_SUBTITLE = {};
-var SCREENSHOTS_FILES = [];
+var FRAMES_FILES = [];
 
 function indexGif(callback) {
     var srt = CURRENT_SUBTITLE.text;
@@ -69,109 +70,90 @@ function cleanUpFiles(callback) {
 function generateTheGif(callback) {
     console.log('generateTheGif');
 
+    var frames = TEMP_DIR + 'screenshot_' + CURRENT + '_??.png';
+
     var encoder = new GIFEncoder(WIDTH, HEIGHT);
 
-    //var frames = FRAME_FILES.join(' ');
-    var frames = TEMP_DIR + 'frame' + CURRENT + '_??.png';
-
+    var gifName  = OUT_DIR + MOVIE_NAME + '_' + CURRENT + '.gif';
     console.log('for pattern:', frames);
 
-    var gifName  = OUT_DIR + MOVIE_NAME + '_' + CURRENT + '.gif';
+    var fileStream = pngFileStream(frames);
+    var writeStream = fs.createWriteStream(gifName);
+
+    fileStream
+        .pipe(encoder.createWriteStream({
+            repeat: 0,
+            delay: 1000 / FRAME_RATE | 0,
+            quality: 3
+        }))
+        .pipe(writeStream);
+
+    writeStream.on('finish', function () {
+        console.log('pngFileStream pipe end');
 
     /*
-    pngFileStream(frames)
-        .pipe(encoder.createWriteStream({ repeat: 0, delay: 1000 / FRAME_RATE, quality: 3 }))
-        .pipe(fs.createWriteStream(gifName))
+    var gifName  = OUT_DIR + MOVIE_NAME + '_' + CURRENT + '.gif';
 
-	.on('end', function () {
-        console.log('pngFileStream pipe end');
-*/
     im.convert([
-	frames,
-	' -delay ' + (1000 / FRAME_RATE),
-	' -loop 0',
-	gifName
+        frames,
+        ' -delay ' + (1000 / FRAME_RATE),
+        ' -loop 0',
+        gifName
     ], function () {
-        var is = fs.createReadStream(TEMP_DIR + 'frame' + CURRENT + '_15.png');
-        var os = fs.createWriteStream(OUT_DIR + MOVIE_NAME + '_' + CURRENT + '.png');
+    */
 
-        is.pipe(os);
-        is.on('end', function () {
-            console.log('15th frame pipe end');
+    /*
+    async.map(FRAME_FILES, function (file, callback) {
+        var img = new PNG(file);
 
-            callback();
+        img.decode(function (pixels) {
+            callback(null, pixels);
         });
-    });
-}
+    }, function (err, files) {
+        var animatedGif = new GIF.AnimatedGif(WIDTH, HEIGHT);
 
-var FRAME_FILES;
-function convertJPGsToPNGs(callback) {
-    console.log('convertJPGsToPNGs');
+        files.forEach(function (file) {
+            animatedGif.push(file);
+        });
+        animatedGif.endPush();
 
-    var filenames = SCREENSHOTS_FILES;
+        var gifName = OUT_DIR + MOVIE_NAME + '_' + CURRENT + '.gif';
 
-    var i = 0;
-    var frameFile = '';
+        fs.writeFileSync(gifName, gif.toString('binary'), 'binary')
+            .on('end', function () {
+    */
+                var is = fs.createReadStream(TEMP_DIR + 'screenshot_' + CURRENT + '_15.png');
+                var os = fs.createWriteStream(OUT_DIR + MOVIE_NAME + '_' + CURRENT + '.png');
 
-    async.mapSeries(filenames, function (filename, callback) {
-        var numName = (i < 10 ? '0' : '') + i;
+                is.pipe(os);
+                is.on('end', function () {
+                    console.log('15th frame pipe end');
 
-        frameFile = TEMP_DIR + 'frame' + CURRENT + '_' + numName + '.png';
-
-        gm(filename)
-            .noProfile()
-            .write(frameFile, function (err) {
-                if (err) return callback(err);
-
-                callback(null, frameFile);
-            });
-        ++i;
-    }, function (err, frameFiles) {
-        if (err) return console.error('convertJPGsToPNGs, error:', err);
-
-        FRAME_FILES = frameFiles;
-
-        callback();
+                    callback();
+                });
+//            });
     });
 }
 
 //  sudo convert frame0_00.png srt0.png -gravity south -composite t.png
-var FUSIONED_SUBTITLES = 0;
-function mergeSubtitle(callback) {
-    console.log('merge subs');
+function addSubtitleAndWatermark(callback) {
+    console.log('add sub and watermark');
 
-    FUSIONED_SUBTITLES = 0;
-    var i = 0;
-    while (i < SCREENSHOTS_FILES.length) {
-        im.convert([
-            SCREENSHOTS_FILES[i],
-            TEMP_DIR + 'srt' + CURRENT + '.png',
-            '-gravity', 'south',
-            '-composite', SCREENSHOTS_FILES[i]
-        ], function(err, stdout) {
-            if (err) return console.error('mergeSubtitle, error:', err);
-
-            FUSIONED_SUBTITLES++;
-            if (FUSIONED_SUBTITLES == FRAMES_PER_GIF) {
-                callback();
-            }
-        });
-        ++i;
-    }
-}
-
-function mergeWaterMark(callback) {
-    console.log('watermarks');
-
-    async.each(SCREENSHOTS_FILES, function (file, callback) {
+    async.each(FRAMES_FILES, function (file, callback) {
         im.convert([
             file,
+            // add subtitle
+            TEMP_DIR + 'srt' + CURRENT + '.png',
+            '-gravity', 'south',
+            '-composite',
+            // add watermark
             './movieToGif/watermark.png',
             '-gravity', 'west',
-            '-composite', file
+            '-composite',
+            file
         ], callback);
     }, function (err) {
-        if (err) return console.error('mergeWaterMark, error:', err);
+        if (err) return console.error('addSubtitleAndWatermark, error:', err);
 
         callback();
     });
@@ -180,7 +162,7 @@ function mergeWaterMark(callback) {
 /*
   if (err) {console.error(err);}
   console.log('screenshots ok!');
-  SCREENSHOTS_FILES = filenames;
+  FRAMES_FILES = filenames;
   generateAllSubtitles();
 */
 //  mplayer  -ss 00:10:00 -frames 1 -vo png,outdir=./,prefix=frameNo,z=0 -ao null ./arrow.mp4
@@ -203,10 +185,9 @@ function takeAllScreenShots(startTime, duration, callback) {
         + ' -t ' + duration
         + ' -s ' + WIDTH + 'x' + HEIGHT
         + ' -r ' + FRAME_RATE
-        + ' ' + TEMP_DIR + 'screenshot_' + MOVIE_NAME + '_' + CURRENT + '_%d.jpg';
+        + ' ' + TEMP_DIR + 'screenshot_' + CURRENT + '_%d.png';
 
     console.log(ffmpegCommand);
-    console.log(SCREENSHOTS_FILES);
 
     cp.exec(ffmpegCommand, callback);
 }
@@ -258,7 +239,7 @@ function movieTimeFromSrtTime(strTime) {
 
 var delta = 0;
 function generateNext(callback) {
-    console.log('Starting Subtitle ' + CURRENT + ' / ' + SUBTITLES.length);
+    console.log('=== Starting Subtitle ' + CURRENT + ' / ' + SUBTITLES.length);
 
     CURRENT_SUBTITLE = SUBTITLES[CURRENT];
 
@@ -285,11 +266,11 @@ function generateNext(callback) {
     var d = (et - st) / FRAMES_PER_GIF;
     delta = d;
 
-    console.log(delta);
+    console.log('delta:', delta);
 
-    SCREENSHOTS_FILES = [];
+    FRAMES_FILES = [];
     for (i = 0; i < FRAMES_PER_GIF; ++i) {
-        SCREENSHOTS_FILES.push(TEMP_DIR + 'screenshot_' + MOVIE_NAME + '_' + CURRENT + '_' + (i+1) + '.jpg');
+        FRAMES_FILES.push(TEMP_DIR + 'screenshot_' + CURRENT + '_' + (i+1) + '.png');
     }
 
     takeAllScreenShots(
@@ -298,9 +279,7 @@ function generateNext(callback) {
         function () {
             async.series([
                 generateSubtitle,
-                mergeWaterMark,
-                mergeSubtitle,
-                convertJPGsToPNGs,
+                addSubtitleAndWatermark,
                 generateTheGif,
                 cleanUpFiles,
                 indexGif
@@ -325,6 +304,8 @@ function hasPunctuation(str) {
 }
 
 function fusion(data) {
+    console.log('fusioning sentences');
+
     var out = [];
 
     for (var i = 0; i < data.length; ++i) {
@@ -347,16 +328,22 @@ function fusion(data) {
 }
 
 function sanitize(data) {
-    for (var i = 0; i < data.length; ++i) {
-        var str = data[i].text;
-        var regex = /(<([^>]+)>)/ig;
-        str = str.replace(regex, "");
-        data[i].text = str;
-    }
-    return data;
+    console.log('sanitizing SRT');
+
+    data.forEach(function (srt) {
+        var str = srt.text;
+        var ltgtRegex = /(<([^>]+)>)/ig;
+        var bracketRegex = /(\[([^\]]+)\])/ig;
+
+        srt.text = str.replace(ltgtRegex, "")
+            .replace(bracketRegex, "")
+            .replace(/\n/g, " ");
+    });
 }
 
 function getSrtObject() {
+    console.log('reading SRT file');
+
     var srt = fs.readFileSync(SRT);
     var data = parser.fromSrt(srt.toString());
     return data;
@@ -365,15 +352,12 @@ function getSrtObject() {
 function generateGif() {
     var data = getSrtObject();
 
-    console.log('Str ok');
+    sanitize(data);
 
-    data = sanitize(data);
-
-    data = fusion(data);
-    SUBTITLES = data;
+    SUBTITLES = fusion(data);
 
     generateNext(function loop() {
-        console.log('generateNext callback');
+        console.log('gif generation complete');
 
         if (MAX) {
             console.log('MAX!', CURRENT, '/', MAX);
@@ -382,16 +366,19 @@ function generateGif() {
                 ++CURRENT;
 
                 generateNext(loop);
-            } else {
+            }
+            else {
                 elasticclient.disconnect();
             }
-        } else if (CURRENT < SUBTITLES.length) {
+        }
+        else if (CURRENT < SUBTITLES.length) {
             console.log(CURRENT, '/', SUBTITLES.LENGTH);
 
             ++CURRENT;
 
             generateNext(loop);
-        } else {
+        }
+        else {
             elasticclient.disconnect();
         }
     });
