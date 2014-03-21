@@ -64,20 +64,35 @@ function indexGif(callback) {
 }
 
 function cleanUpFiles(callback) {
+    console.log('cleaning up files');
+
     var files = fs.readdirSync(TEMP_DIR);
 
     async.each(files.map(function (file) { return TEMP_DIR + file; }), fs.unlink, callback);
 }
 
+function generateThumbnail(callback) {
+    console.log('generating thumbnail');
+
+    var is = fs.createReadStream(TEMP_DIR + 'frame_' + CURRENT + '_15.png');
+    var os = fs.createWriteStream(OUT_DIR + MOVIE_NAME + '_' + CURRENT + '.png');
+
+    is.pipe(os);
+    is.on('end', function () {
+        console.log('15th frame pipe end');
+
+        callback();
+    });
+}
+
 function generateTheGif(callback) {
-    console.log('generateTheGif');
+    console.log('generating the gif');
 
-    var frames = TEMP_DIR + 'screenshot_' + CURRENT + '_??.png';
-
-    var encoder = new GIFEncoder(WIDTH, HEIGHT);
-
+    var frames = TEMP_DIR + 'frame_' + CURRENT + '_??.png';
     var gifName  = OUT_DIR + MOVIE_NAME + '_' + CURRENT + '.gif';
-    console.log('for pattern:', frames);
+
+/*
+    var encoder = new GIFEncoder(WIDTH, HEIGHT);
 
     var fileStream = pngFileStream(frames);
     var writeStream = fs.createWriteStream(gifName);
@@ -93,48 +108,18 @@ function generateTheGif(callback) {
     writeStream.on('finish', function () {
         console.log('pngFileStream pipe end');
 
-    /*
-    var gifName  = OUT_DIR + MOVIE_NAME + '_' + CURRENT + '.gif';
+	callback();
+    });
+*/
 
+///*
     im.convert([
         frames,
-        ' -delay ' + (1000 / FRAME_RATE),
+        ' -delay ' + (1000 / FRAME_RATE) | 0,
         ' -loop 0',
         gifName
-    ], function () {
-    */
-
-    /*
-    async.map(FRAME_FILES, function (file, callback) {
-        var img = new PNG(file);
-
-        img.decode(function (pixels) {
-            callback(null, pixels);
-        });
-    }, function (err, files) {
-        var animatedGif = new GIF.AnimatedGif(WIDTH, HEIGHT);
-
-        files.forEach(function (file) {
-            animatedGif.push(file);
-        });
-        animatedGif.endPush();
-
-        var gifName = OUT_DIR + MOVIE_NAME + '_' + CURRENT + '.gif';
-
-        fs.writeFileSync(gifName, gif.toString('binary'), 'binary')
-            .on('end', function () {
-    */
-                var is = fs.createReadStream(TEMP_DIR + 'screenshot_' + CURRENT + '_15.png');
-                var os = fs.createWriteStream(OUT_DIR + MOVIE_NAME + '_' + CURRENT + '.png');
-
-                is.pipe(os);
-                is.on('end', function () {
-                    console.log('15th frame pipe end');
-
-                    callback();
-                });
-//            });
-    });
+    ], callback);
+//*/
 }
 
 //  sudo convert frame0_00.png srt0.png -gravity south -composite t.png
@@ -152,7 +137,7 @@ function addSubtitleAndWatermark(callback) {
             './movieToGif/watermark.png',
             '-gravity', 'west',
             '-composite',
-            file
+            file.replace(/\.jpg/, '.png')
         ], callback);
     }, function (err) {
         if (err) return console.error('addSubtitleAndWatermark, error:', err);
@@ -172,7 +157,24 @@ function addSubtitleAndWatermark(callback) {
 
 //time ffmpeg -async 1 -ss 00:00:10.001 -i James.Bond.Quantum.of.Solace.2008.720p.BRrip.x264.YIFY.mp4 -t 3 -s 400x240 -r 10  x%d.jp
 
-function takeAllScreenShots(startTime, duration, callback) {
+function takeAllScreenShots(callback) {
+    var startTime = (movieTimeFromSrtTime(CURRENT_SUBTITLE.startTime) - 1.0) | 0;
+    var endTime = movieTimeFromSrtTime(CURRENT_SUBTITLE.endTime) + 1.0;
+    var duration = endTime - startTime;
+    var delta = duration / FRAMES_PER_GIF;
+    FRAMES_PER_GIF = duration * FRAME_RATE;
+
+    console.log('Subtitle Length:' , duration);
+    console.log('FRAMES COUNT:', FRAMES_PER_GIF);
+    console.log('delta:', delta);
+
+    FRAMES_FILES = [];
+
+    var i = 0;
+    for (i = 0; i < FRAMES_PER_GIF; ++i) {
+        FRAMES_FILES.push(TEMP_DIR + 'frame_' + CURRENT + '_' + (i + 1) + '.jpg');
+    }
+
     /*
       var mplayerCommand = 'mplayer -ss ' + offset +
       ' -frames 1' +
@@ -187,7 +189,7 @@ function takeAllScreenShots(startTime, duration, callback) {
         + ' -t ' + duration
         + ' -s ' + WIDTH + 'x' + HEIGHT
         + ' -r ' + FRAME_RATE
-        + ' ' + TEMP_DIR + 'screenshot_' + CURRENT + '_%d.png';
+        + ' ' + TEMP_DIR + 'frame_' + CURRENT + '_%d.jpg';
 
     console.log(ffmpegCommand);
 
@@ -222,7 +224,8 @@ function generateSubtitle(callback) {
         '-gravity', 'Center',
         '-stroke', '#111111',
         '-strokewidth', strokeSize,
-        'caption:' + str , target
+        'caption:' + str ,
+        target
     ], function(err, stdout) {
         if (err) return console.error(err);
 
@@ -240,55 +243,20 @@ function movieTimeFromSrtTime(strTime) {
     return s + m + h;
 }
 
-var delta = 0;
 function generateNext(callback) {
     console.log('=== Starting Subtitle ' + CURRENT + ' / ' + SUBTITLES.length);
 
     CURRENT_SUBTITLE = SUBTITLES[CURRENT];
 
-    var st = movieTimeFromSrtTime(CURRENT_SUBTITLE.startTime);
-    var et = movieTimeFromSrtTime(CURRENT_SUBTITLE.endTime);
-
-    /**
-     * Extract timings from SRT
-     */
-    st -= 1.0;
-    if (st < 0) {
-        st = 0;
-    }
-    et += 1.0;
-
-    console.log('Subtitle Length' , et - st);
-
-    var i = 0;
-    var fb = [];
-    FRAMES_PER_GIF = (et - st) * FRAME_RATE;
-
-    console.log('FRAMES COUNT', FRAMES_PER_GIF);
-
-    var d = (et - st) / FRAMES_PER_GIF;
-    delta = d;
-
-    console.log('delta:', delta);
-
-    FRAMES_FILES = [];
-    for (i = 0; i < FRAMES_PER_GIF; ++i) {
-        FRAMES_FILES.push(TEMP_DIR + 'screenshot_' + CURRENT + '_' + (i+1) + '.png');
-    }
-
-    takeAllScreenShots(
-        st,
-        et - st,
-        function () {
-            async.series([
-                generateSubtitle,
-                addSubtitleAndWatermark,
-                generateTheGif,
-                cleanUpFiles,
-                indexGif
-            ], callback);
-        }
-    );
+    async.series([
+        takeAllScreenShots,
+        generateSubtitle,
+        addSubtitleAndWatermark,
+        generateTheGif,
+        generateThumbnail,
+        cleanUpFiles,
+        indexGif
+    ], callback);
 }
 
 function hasPunctuation(str) {
@@ -362,7 +330,7 @@ function generateGif() {
     generateNext(function loop() {
         console.log('gif generation complete');
 
-        if (MAX) {
+        if (MAX !== undefined) {
             console.log('MAX!', CURRENT, '/', MAX);
 
             if (CURRENT < MAX) {
@@ -375,7 +343,7 @@ function generateGif() {
             }
         }
         else if (CURRENT < SUBTITLES.length) {
-            console.log(CURRENT, '/', SUBTITLES.LENGTH);
+            console.log(CURRENT, '/', SUBTITLES.length);
 
             ++CURRENT;
 
@@ -399,10 +367,10 @@ if (!MOVIE_BEAUTY) {
     process.exit(1);
 }
 
-if (argv.from) {
+if (argv.from !== undefined) {
     CURRENT = argv.from;
 }
-if (argv.to) {
+if (argv.to !== undefined) {
     MAX = argv.to;
 }
 
