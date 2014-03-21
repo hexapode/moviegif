@@ -3,8 +3,6 @@ var path = require('path');
 var async = require('async');
 var parser = require('subtitles-parser');
 var ffmpeg = require('fluent-ffmpeg');
-var GIFEncoder = require('gifencoder');
-var pngFileStream = require('png-file-stream');
 
 var im = require('imagemagick');
 var minimist = require('minimist');
@@ -91,38 +89,14 @@ function generateTheGif(callback) {
     var frames = TEMP_DIR + 'frame_' + CURRENT + '_??.png';
     var gifName  = OUT_DIR + MOVIE_NAME + '_' + CURRENT + '.gif';
 
-/*
-    var encoder = new GIFEncoder(WIDTH, HEIGHT);
-
-    var fileStream = pngFileStream(frames);
-    var writeStream = fs.createWriteStream(gifName);
-
-    fileStream
-        .pipe(encoder.createWriteStream({
-            repeat: 0,
-            delay: 1000 / FRAME_RATE | 0,
-            quality: 3
-        }))
-        .pipe(writeStream);
-
-    writeStream.on('finish', function () {
-        console.log('pngFileStream pipe end');
-
-	callback();
-    });
-*/
-
-///*
     im.convert([
         frames,
         ' -delay ' + (1000 / FRAME_RATE) | 0,
         ' -loop 0',
         gifName
     ], callback);
-//*/
 }
 
-//  sudo convert frame0_00.png srt0.png -gravity south -composite t.png
 function addSubtitleAndWatermark(callback) {
     console.log('add sub and watermark');
 
@@ -146,17 +120,6 @@ function addSubtitleAndWatermark(callback) {
     });
 };
 
-/*
-  if (err) {console.error(err);}
-  console.log('screenshots ok!');
-  FRAMES_FILES = filenames;
-  generateAllSubtitles();
-*/
-//  mplayer  -ss 00:10:00 -frames 1 -vo png,outdir=./,prefix=frameNo,z=0 -ao null ./arrow.mp4
-//  mplayer -ss 61.33334333333334 -frames 1 -vo png,outdir=./movieToGif/frames/Arrow/,prefix=Test,z=0 -ao null ./movieToGif/movies/arrow.mp4
-
-//time ffmpeg -async 1 -ss 00:00:10.001 -i James.Bond.Quantum.of.Solace.2008.720p.BRrip.x264.YIFY.mp4 -t 3 -s 400x240 -r 10  x%d.jp
-
 function takeAllScreenShots(callback) {
     var startTime = (movieTimeFromSrtTime(CURRENT_SUBTITLE.startTime) - 1.0) | 0;
     var endTime = movieTimeFromSrtTime(CURRENT_SUBTITLE.endTime) + 1.0;
@@ -175,15 +138,6 @@ function takeAllScreenShots(callback) {
         FRAMES_FILES.push(TEMP_DIR + 'frame_' + CURRENT + '_' + (i + 1) + '.jpg');
     }
 
-    /*
-      var mplayerCommand = 'mplayer -ss ' + offset +
-      ' -frames 1' +
-      ' -vf scale=' + WIDTH + ':' + HEIGHT +
-      ' -vo png:outdir=' + TEMP_DIR + ',z=0' +
-      ' -ao null ' +
-      MOVIE;
-    */
-
     var ffmpegCommand = 'ffmpeg -ss ' + startTime
         + ' -i ' + MOVIE
         + ' -t ' + duration
@@ -195,10 +149,6 @@ function takeAllScreenShots(callback) {
 
     cp.exec(ffmpegCommand, callback);
 }
-
-/**
-   convert -background transparent -font Helvetica -pointsize 30 -fill white -size 600x  -gravity Center -stroke black -strokewidth 1 caption:'Hsata la visita babidta. LOrem PSum psum it sum'  new.png
-*/
 
 function generateSubtitle(callback) {
     var target = TEMP_DIR + 'srt' + CURRENT + '.png';
