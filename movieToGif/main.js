@@ -16,15 +16,13 @@ var elasticclient = new elasticsearch.Client({
 });
 
 // CONFIG
-var FRAMES_PER_GIF = 30;
-var FRAME_RATE = 8;
+var FRAME_RATE = 10;
 var WIDTH = 480;
 var HEIGHT = 240;
 // CONFIG
 
 var MOVIE_NAME;
 var MOVIE_BEAUTY;
-var SRT;
 var MOVIE;
 
 var TEMP_DIR = './movieToGif/';
@@ -57,6 +55,7 @@ function indexGif(callback) {
     }, function (err, response) {
         if (err) console.error('indexation, error:', err);
 
+        // do not return err, it is probably a "key already exists" error
         callback();
     });
 }
@@ -86,21 +85,29 @@ function generateThumbnail(callback) {
 function generateTheGif(callback) {
     console.log('generating the gif');
 
+    console.log(FRAMES_FILES[0] , '=>', FRAMES_FILES[FRAMES_FILES.length - 1]);
+
     var frames = TEMP_DIR + 'frame_' + CURRENT + '_??.png';
-    var gifName  = OUT_DIR + MOVIE_NAME + '_' + CURRENT + '.gif';
+    var gifName = OUT_DIR + MOVIE_NAME + '_' + CURRENT + '.gif';
 
     im.convert([
+        '-delay', (100 / FRAME_RATE) | 0,
+        '-loop', '0',
         frames,
-        ' -delay ' + (1000 / FRAME_RATE) | 0,
-        ' -loop 0',
         gifName
-    ], callback);
+    ], function (err) {
+        if (err) console.error(err);
+
+        callback(err);
+    });
 }
 
 function addSubtitleAndWatermark(callback) {
     console.log('add sub and watermark');
 
-    async.each(FRAMES_FILES, function (file, callback) {
+    async.map(FRAMES_FILES, function (file, callback) {
+        var fileName = file.replace(/\.jpg$/, '.png');
+
         im.convert([
             file,
             // add subtitle
@@ -111,35 +118,69 @@ function addSubtitleAndWatermark(callback) {
             './movieToGif/watermark.png',
             '-gravity', 'west',
             '-composite',
-            file.replace(/\.jpg/, '.png')
-        ], callback);
-    }, function (err) {
-        if (err) return console.error('addSubtitleAndWatermark, error:', err);
+            fileName
+        ], function (err) {
+            if (err) return callback(err);
 
-        callback();
+            callback(null, fileName);
+        });
+    }, function (err, files) {
+        if (err) console.error('addSubtitleAndWatermark, error:', err);
+
+        FRAMES_FILES = files;
+
+        callback(err);
     });
 };
 
-function takeAllScreenShots(callback) {
-    var startTime = (movieTimeFromSrtTime(CURRENT_SUBTITLE.startTime) - 1.0) | 0;
-    var endTime = movieTimeFromSrtTime(CURRENT_SUBTITLE.endTime) + 1.0;
-    var duration = endTime - startTime;
-    var delta = duration / FRAMES_PER_GIF;
-    FRAMES_PER_GIF = duration * FRAME_RATE;
+function srtTimeToSeconds(strTime) {
+    // '00:41:56,520' -> XXXXX.XXXs
 
-    console.log('Subtitle Length:' , duration);
-    console.log('FRAMES COUNT:', FRAMES_PER_GIF);
-    console.log('delta:', delta);
+    var h = strTime.substr(0, 2) * 60 * 60;
+    var m = strTime.substr(3, 2) * 60;
+    var s = strTime.substr(6, 2) * 1;
+    var ms = strTime.substr(9, 3) * 0.001;
+
+    return h + m + s + ms;
+}
+
+function zeroPadding(n) {
+    return (n < 10 ? '0' : '') + n;
+}
+
+function secondsToSrtTime(seconds) {
+    // XXXXX.XXXs => '00:41:56,520'
+
+    var h = zeroPadding(Math.floor(seconds / 60 / 60));
+    var m = zeroPadding(Math.floor(seconds / 60));
+    var s = zeroPadding(Math.floor(seconds));
+    var ms = Math.floor((seconds - Math.floor(seconds)) * 1000);
+
+    return h + ':' + m + ':' + s + ',' + ms;
+}
+
+function takeAllScreenShots(callback) {
+    console.log('current subtitle:', CURRENT_SUBTITLE);
+
+    var startTime = Math.max(srtTimeToSeconds(CURRENT_SUBTITLE.startTime) - 1.0, 0) | 0;
+    var endTime = srtTimeToSeconds(CURRENT_SUBTITLE.endTime) + 1.0;
+    var duration = endTime - startTime;
+    var framesCount = duration * FRAME_RATE - 1;
+
+    console.log('starTime:', startTime, '/ endTime:', endTime);
+    console.log('Subtitle length:' , duration);
+    console.log('Frames count:', framesCount);
 
     FRAMES_FILES = [];
 
-    var i = 0;
-    for (i = 0; i < FRAMES_PER_GIF; ++i) {
-        FRAMES_FILES.push(TEMP_DIR + 'frame_' + CURRENT + '_' + (i + 1) + '.jpg');
+    var i;
+    for (i = 1; i <= framesCount; ++i) {
+        FRAMES_FILES.push(TEMP_DIR + 'frame_' + CURRENT + '_' + i + '.jpg');
     }
 
-    var ffmpegCommand = 'ffmpeg -ss ' + startTime
-        + ' -i ' + MOVIE
+    var ffmpegCommand = 'ffmpeg'
+        + ' -ss ' + startTime
+        + ' -i "' + MOVIE + '"'
         + ' -t ' + duration
         + ' -s ' + WIDTH + 'x' + HEIGHT
         + ' -r ' + FRAME_RATE
@@ -147,7 +188,11 @@ function takeAllScreenShots(callback) {
 
     console.log(ffmpegCommand);
 
-    cp.exec(ffmpegCommand, callback);
+    cp.exec(ffmpegCommand, function (err) {
+        if (err) console.error(err);
+
+        callback(err);
+    });
 }
 
 function generateSubtitle(callback) {
@@ -177,20 +222,10 @@ function generateSubtitle(callback) {
         'caption:' + str ,
         target
     ], function(err, stdout) {
-        if (err) return console.error(err);
+        if (err) console.error(err);
 
-        callback();
+        callback(err);
     });
-}
-
-function movieTimeFromSrtTime(strTime) {
-    // '00:41:56,520'
-
-    var h = strTime.substr(0, 2) * 60 * 60;
-    var m = strTime.substr(3, 2) * 60;
-    var s = strTime.substr(6, 2) * 1;
-
-    return s + m + h;
 }
 
 function generateNext(callback) {
@@ -262,16 +297,16 @@ function sanitize(data) {
     });
 }
 
-function getSrtObject() {
+function parseSrtFile(file) {
     console.log('reading SRT file');
 
-    var srt = fs.readFileSync(SRT);
-    var data = parser.fromSrt(srt.toString());
-    return data;
+    return parser.fromSrt(
+        fs.readFileSync(file).toString()
+    );
 }
 
-function generateGif() {
-    var data = getSrtObject();
+function generateGif(srtFile) {
+    var data = parseSrtFile(srtFile);
 
     sanitize(data);
 
@@ -292,7 +327,7 @@ function generateGif() {
                 elasticclient.disconnect();
             }
         }
-        else if (CURRENT < SUBTITLES.length) {
+        else if (CURRENT < SUBTITLES.length - 1) {
             console.log(CURRENT, '/', SUBTITLES.length);
 
             ++CURRENT;
@@ -308,7 +343,6 @@ function generateGif() {
 var argv = minimist(process.argv.slice(2));
 
 MOVIE_NAME = argv.name;
-SRT = argv.srt;
 MOVIE = argv.movie;
 MOVIE_BEAUTY = argv.beauty;
 
@@ -343,4 +377,4 @@ try {
 
 console.log('starting Generation');
 
-generateGif();
+generateGif(argv.srt);
