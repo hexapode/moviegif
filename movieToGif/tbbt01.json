@@ -1,0 +1,120 @@
+[
+  {
+    "movie" : "./movieToGif/movies/TBBT/season_1/01.avi",
+    "srt" : "./movieToGif/movies/TBBT/season_1/01.srt",
+    "name" : "TBBT0101",
+    "beauty" : "The BigBang Theory S01E01"
+  },
+
+  {
+    "movie" : "./movieToGif/movies/TBBT/season_1/02.avi",
+    "srt" : "./movieToGif/movies/TBBT/season_1/02.srt",
+    "name" : "TBBT0102",
+    "beauty" : "The BigBang Theory S01E02"
+  },
+
+  {
+    "movie" : "./movieToGif/movies/TBBT/season_1/03.avi",
+    "srt" : "./movieToGif/movies/TBBT/season_1/03.srt",
+    "name" : "TBBT0103",
+    "beauty" : "The BigBang Theory S01E03"
+  },
+
+  {
+    "movie" : "./movieToGif/movies/TBBT/season_1/04.avi",
+    "srt" : "./movieToGif/movies/TBBT/season_1/04.srt",
+    "name" : "TBBT0104",
+    "beauty" : "The BigBang Theory S01E04"
+  },
+
+  {
+    "movie" : "./movieToGif/movies/TBBT/season_1/05.avi",
+    "srt" : "./movieToGif/movies/TBBT/season_1/05.srt",
+    "name" : "TBBT0105",
+    "beauty" : "The BigBang Theory S01E05"
+  },
+
+  {
+    "movie" : "./movieToGif/movies/TBBT/season_1/06.avi",
+    "srt" : "./movieToGif/movies/TBBT/season_1/06.srt",
+    "name" : "TBBT0106",
+    "beauty" : "The BigBang Theory S01E06"
+  },
+
+  {
+    "movie" : "./movieToGif/movies/TBBT/season_1/07.avi",
+    "srt" : "./movieToGif/movies/TBBT/season_1/07.srt",
+    "name" : "TBBT0107",
+    "beauty" : "The BigBang Theory S01E07"
+  },
+
+  {
+    "movie" : "./movieToGif/movies/TBBT/season_1/08.avi",
+    "srt" : "./movieToGif/movies/TBBT/season_1/08.srt",
+    "name" : "TBBT0108",
+    "beauty" : "The BigBang Theory S01E08"
+  },
+
+  {
+    "movie" : "./movieToGif/movies/TBBT/season_1/09.avi",
+    "srt" : "./movieToGif/movies/TBBT/season_1/09.srt",
+    "name" : "TBBT0109",
+    "beauty" : "The BigBang Theory S01E09"
+  },
+
+  {
+    "movie" : "./movieToGif/movies/TBBT/season_1/10.avi",
+    "srt" : "./movieToGif/movies/TBBT/season_1/10.srt",
+    "name" : "TBBT0110",
+    "beauty" : "The BigBang Theory S01E10"
+  },
+
+  {
+    "movie" : "./movieToGif/movies/TBBT/season_1/11.avi",
+    "srt" : "./movieToGif/movies/TBBT/season_1/11.srt",
+    "name" : "TBBT0111",
+    "beauty" : "The BigBang Theory S01E11"
+  },
+
+  {
+    "movie" : "./movieToGif/movies/TBBT/season_1/12.avi",
+    "srt" : "./movieToGif/movies/TBBT/season_1/12.srt",
+    "name" : "TBBT0112",
+    "beauty" : "The BigBang Theory S01E12"
+  },
+
+  {
+    "movie" : "./movieToGif/movies/TBBT/season_1/13.avi",
+    "srt" : "./movieToGif/movies/TBBT/season_1/13.srt",
+    "name" : "TBBT0113",
+    "beauty" : "The BigBang Theory S01E13"
+  },
+
+  {
+    "movie" : "./movieToGif/movies/TBBT/season_1/14.avi",
+    "srt" : "./movieToGif/movies/TBBT/season_1/14.srt",
+    "name" : "TBBT0114",
+    "beauty" : "The BigBang Theory S01E14"
+  },
+
+  {
+    "movie" : "./movieToGif/movies/TBBT/season_1/15.avi",
+    "srt" : "./movieToGif/movies/TBBT/season_1/15.srt",
+    "name" : "TBBT0115",
+    "beauty" : "The BigBang Theory S01E15"
+  },
+
+  {
+    "movie" : "./movieToGif/movies/TBBT/season_1/16.avi",
+    "srt" : "./movieToGif/movies/TBBT/season_1/16.srt",
+    "name" : "TBBT0116",
+    "beauty" : "The BigBang Theory S01E16"
+  },
+
+  {
+    "movie" : "./movieToGif/movies/TBBT/season_1/17.avi",
+    "srt" : "./movieToGif/movies/TBBT/season_1/17.srt",
+    "name" : "TBBT0117",
+    "beauty" : "The BigBang Theory S01E17"
+  }
+]
