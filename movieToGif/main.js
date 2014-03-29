@@ -409,7 +409,7 @@ SRT = argv.srt;
 
 
 if (movieListFile) {
-    MOVIE_LIST = require(MOVIE_LIST_FILE);
+    MOVIE_LIST = require(movieListFile);
     loadNextMovie();
 }
 else {
