@@ -18,7 +18,7 @@ var elasticclient = new elasticsearch.Client({
 // CONFIG
 var FRAME_RATE = 10;
 var WIDTH = 640;
-var HEIGHT = 480;
+var HEIGHT = 360;
 // CONFIG
 
 var MOVIE_NAME;
