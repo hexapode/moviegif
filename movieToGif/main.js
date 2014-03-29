@@ -24,12 +24,15 @@ var HEIGHT = 240;
 var MOVIE_NAME;
 var MOVIE_BEAUTY;
 var MOVIE;
+var MOVIE_LIST;
 
 var TEMP_DIR = './movieToGif/';
 var OUT_DIR = './movieToGif/out/';
 
 var SUBTITLES = [];
 var CURRENT = 0;
+var CURRENT_MOVIE = 0;
+var MOVIE_LIST = [];
 var MAX;
 
 var CURRENT_SUBTITLE = {};
@@ -335,10 +338,64 @@ function generateGif(srtFile) {
             generateNext(loop);
         }
         else {
-            elasticclient.disconnect();
+            if (CURRENT_MOVIE < MOVIE_LIST.length) {
+                loadNextMovie();
+            }
+            else {
+                elasticclient.disconnect();
+            }
         }
     });
 }
+
+function initMovieGeneration(argv) {
+      if (!MOVIE_BEAUTY) {
+        console.log('argument --beauty "Beautified name" required!');
+        process.exit(1);
+    }
+
+    if (argv.from !== undefined) {
+        CURRENT = argv.from;
+    }
+    if (argv.to !== undefined) {
+        MAX = argv.to;
+    }
+
+
+
+    // TEMP_DIR = '/mnt/ramdisk/frames/' + MOVIE_NAME + '/';
+    TEMP_DIR = './movieToGif/frames/' + MOVIE_NAME + '/';
+
+    try {
+        var stats = fs.statSync(TEMP_DIR);
+
+        console.log('stats:', stats);
+
+        if (!stats || !stats.isDirectory()) {
+            fs.mkdirSync(TEMP_DIR);
+        }
+    } catch (e) {
+        console.log(TEMP_DIR + ': no such file or directory, creating...');
+
+        fs.mkdirSync(TEMP_DIR);
+    }
+
+    console.log('starting Generation');
+
+    generateGif(SRT);
+}
+
+function loadNextMovie() {
+    CURRENT = 0;
+    MOVIE_NAME = MOVIE_LIST[CURRENT_MOVIE].name;
+    SRT = MOVIE_LIST[CURRENT_MOVIE].srt;
+    MOVIE = MOVIE_LIST[CURRENT_MOVIE].movie;
+    BEAUTY = MOVIE_LIST[CURRENT_MOVIE].beauty;
+
+    initMovieGeneration({});
+    CURRENT_MOVIE++;
+}
+
 
 var argv = minimist(process.argv.slice(2));
 
@@ -346,35 +403,19 @@ MOVIE_NAME = argv.name;
 MOVIE = argv.movie;
 MOVIE_BEAUTY = argv.beauty;
 
-if (!MOVIE_BEAUTY) {
-    console.log('argument --beauty "Beautified name" required!');
-    process.exit(1);
+var movieListFile = argv.movieList;
+SRT = argv.srt;
+
+
+
+if (movieListFile) {
+    MOVIE_LIST = require(MOVIE_LIST_FILE);
+    loadNextMovie();
+}
+else {
+
+  initMovieGeneration(argv);
 }
 
-if (argv.from !== undefined) {
-    CURRENT = argv.from;
-}
-if (argv.to !== undefined) {
-    MAX = argv.to;
-}
 
-// TEMP_DIR = '/mnt/ramdisk/frames/' + MOVIE_NAME + '/';
-TEMP_DIR = './movieToGif/frames/' + MOVIE_NAME + '/';
 
-try {
-    var stats = fs.statSync(TEMP_DIR);
-
-    console.log('stats:', stats);
-
-    if (!stats || !stats.isDirectory()) {
-        fs.mkdirSync(TEMP_DIR);
-    }
-} catch (e) {
-    console.log(TEMP_DIR + ': no such file or directory, creating...');
-
-    fs.mkdirSync(TEMP_DIR);
-}
-
-console.log('starting Generation');
-
-generateGif(argv.srt);
