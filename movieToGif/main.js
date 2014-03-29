@@ -390,7 +390,7 @@ function loadNextMovie() {
     MOVIE_NAME = MOVIE_LIST[CURRENT_MOVIE].name;
     SRT = MOVIE_LIST[CURRENT_MOVIE].srt;
     MOVIE = MOVIE_LIST[CURRENT_MOVIE].movie;
-    BEAUTY = MOVIE_LIST[CURRENT_MOVIE].beauty;
+    MOVIE_BEAUTY = MOVIE_LIST[CURRENT_MOVIE].beauty;
 
     initMovieGeneration({});
     CURRENT_MOVIE++;
