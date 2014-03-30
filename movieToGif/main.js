@@ -187,7 +187,7 @@ function takeAllScreenShots(callback) {
         + ' -t ' + duration
         + ' -s ' + WIDTH + 'x' + HEIGHT
         + ' -r ' + FRAME_RATE
-        + ' -qscale 1'
+        + ' -qscale 20'
         + ' ' + TEMP_DIR + 'frame_' + CURRENT + '_%d.jpg';
 
     console.log(ffmpegCommand);
