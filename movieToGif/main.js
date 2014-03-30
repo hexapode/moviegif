@@ -185,7 +185,7 @@ function takeAllScreenShots(callback) {
         + ' -ss ' + startTime
         + ' -i "' + MOVIE + '"'
         + ' -t ' + duration
-        + '-q:v 2'
+        + '-qscale:v 2'
         + ' -s ' + WIDTH + 'x' + HEIGHT
         + ' -r ' + FRAME_RATE
         + ' ' + TEMP_DIR + 'frame_' + CURRENT + '_%d.jpg';
