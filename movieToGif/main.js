@@ -200,7 +200,7 @@ function takeAllScreenShots(callback) {
 }
 
 function generateSubtitle(callback) {
-    var target = TEMP_DIR + 'srt' + CURRENT + '.png';
+    var target = TEMP_DIR + 'srt' + CURRENT + '_.png';
     var str = SUBTITLES[CURRENT].text;
 
     var size = 32;
@@ -223,7 +223,7 @@ function generateSubtitle(callback) {
         '-fill', '#ffffff',
         '-size', WIDTH + 'x',
         '-gravity', 'Center',
-        "caption:'" + str + "'",
+        "caption:" + str,
         target
     ], function(err, stdout) {
         if (err) console.error(err);
@@ -235,21 +235,22 @@ function generateSubtitle(callback) {
 function polishSubtitle(callback) {
     console.log('polish subtitle :)');
     var target = TEMP_DIR + 'srt' + CURRENT + '.png';
+    var source = TEMP_DIR + 'srt' + CURRENT + '_.png';
     var str = SUBTITLES[CURRENT].text;
 
     var size = 32;
     var strokeSize = "0";
 
   
-    im.convert([target,
+    im.convert([source,
         '-font', 'AG Foreigner',
         '-pointsize', size,
         '-stroke', 'none',
-        '-strokewidth', strokeSize,
-        '-fill', '#ffffff',
+        '-strokewidth', 0,
+        '-fill', '#ff0000',
         '-size', WIDTH + 'x',
         '-gravity', 'Center',
-        "caption:'" + str + "'",
+        "caption:" + str,
         target
     ], function(err, stdout) {
         if (err) console.error(err);
