@@ -222,6 +222,8 @@ function generateSubtitle(callback) {
         '-strokewidth', strokeSize,
         '-fill', '#ffffff',
         '-size', WIDTH + 'x',
+        '-stroke', 'none',
+        '-fill', '#ffffff',
         '-gravity', 'Center',
         'caption:' + str ,
         target
