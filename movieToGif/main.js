@@ -200,7 +200,7 @@ function takeAllScreenShots(callback) {
 }
 
 function generateSubtitle(callback) {
-    var target = TEMP_DIR + 'pre' + CURRENT + '_.png';
+    var target = TEMP_DIR + 'pre' + CURRENT + '.png';
     var str = SUBTITLES[CURRENT].text;
 
     var size = 32;
