@@ -303,7 +303,7 @@ function sanitize(data) {
         srt.text = str.replace(ltgtRegex, "")
             .replace(bracketRegex, "")
             .replace(/\n/g, " ")
-            .replace(/\'/g, "\'");
+            .replace(/\'/g, "\\'");
     });
 }
 
