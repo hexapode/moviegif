@@ -216,7 +216,7 @@ function generateSubtitle(callback) {
     }
     im.convert([
         '-background', 'transparent',
-        '-font', 'Helvetica Bold',
+        '-font', 'foreigner',
         '-pointsize', size,
         '-fill', '#ffffff',
         '-size', WIDTH + 'x',
