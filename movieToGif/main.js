@@ -218,11 +218,11 @@ function generateSubtitle(callback) {
         '-background', 'transparent',
         '-font', 'AG Foreigner',
         '-pointsize', size,
+        '-stroke', '#111111',
+        '-strokewidth', strokeSize,
         '-fill', '#ffffff',
         '-size', WIDTH + 'x',
         '-gravity', 'Center',
-        '-stroke', '#111111',
-        '-strokewidth', strokeSize,
         'caption:' + str ,
         target
     ], function(err, stdout) {
