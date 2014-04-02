@@ -208,11 +208,11 @@ function generateSubtitle(callback) {
 
     if (str.length > 60) {
         size = 26;
-        strokeSize = "1.0";
+        strokeSize = "1.5";
     }
     else if (str.length > 30) {
         size = 28;
-        strokeSize = "1.2";
+        strokeSize = "1.5";
     }
     im.convert([
         '-background', 'transparent',
