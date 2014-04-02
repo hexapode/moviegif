@@ -224,11 +224,6 @@ function generateSubtitle(callback) {
         '-size', WIDTH + 'x',
         '-gravity', 'Center',
         'caption:' + str,
-        '-stroke', 'none',
-        '-fill', '#ffffff',
-        '-size', WIDTH + 'x',
-        '-gravity', 'Center',
-        'caption:' + str,
         target
     ], function(err, stdout) {
         if (err) console.error(err);
