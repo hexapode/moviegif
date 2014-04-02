@@ -233,20 +233,14 @@ function generateSubtitle(callback) {
 }
 
 function polishSubtitle(callback) {
+    console.log('polish subtitle :)');
     var target = TEMP_DIR + 'srt' + CURRENT + '.png';
     var str = SUBTITLES[CURRENT].text;
 
     var size = 32;
-    var strokeSize = "1.8";
+    var strokeSize = "0";
 
-    if (str.length > 60) {
-        size = 26;
-        strokeSize = "1.5";
-    }
-    else if (str.length > 30) {
-        size = 28;
-        strokeSize = "1.5";
-    }
+  
     im.convert([target,
         '-background',  'transparent',
         '-font', 'AG Foreigner',
