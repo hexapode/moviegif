@@ -242,7 +242,6 @@ function polishSubtitle(callback) {
 
   
     im.convert([target,
-        '-background',  'transparent',
         '-font', 'AG Foreigner',
         '-pointsize', size,
         '-stroke', 'none',
