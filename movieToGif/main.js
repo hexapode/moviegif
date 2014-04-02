@@ -223,12 +223,12 @@ function generateSubtitle(callback) {
         '-fill', '#ffffff',
         '-size', WIDTH + 'x',
         '-gravity', 'Center',
-        '-annotate', + str ,
+        '-annotate', '"' + str + '"',
         '-stroke', 'none',
         '-fill', '#ffffff',
         '-size', WIDTH + 'x',
         '-gravity', 'Center',
-        '-annotate', str,
+        '-annotate', '"' + str + '"',
         target
     ], function(err, stdout) {
         if (err) console.error(err);
@@ -302,7 +302,8 @@ function sanitize(data) {
 
         srt.text = str.replace(ltgtRegex, "")
             .replace(bracketRegex, "")
-            .replace(/\n/g, " ");
+            .replace(/\n/g, " ")
+            .replace(/"/g, "\"");
     });
 }
 
