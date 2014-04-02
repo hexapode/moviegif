@@ -239,6 +239,40 @@ function generateSubtitle(callback) {
     });
 }
 
+function polishSubtitle(callback) {
+    var target = TEMP_DIR + 'srt' + CURRENT + '.png';
+    var str = SUBTITLES[CURRENT].text;
+
+    var size = 32;
+    var strokeSize = "1.8";
+
+    if (str.length > 60) {
+        size = 26;
+        strokeSize = "1.5";
+    }
+    else if (str.length > 30) {
+        size = 28;
+        strokeSize = "1.5";
+    }
+    im.convert([
+        '-background',  target,
+        '-font', 'AG Foreigner',
+        '-pointsize', size,
+        '-stroke', 'none',
+        '-strokewidth', strokeSize,
+        '-fill', '#ffffff',
+        '-size', WIDTH + 'x',
+        '-gravity', 'Center',
+        "caption:'" + str + "'"
+        target
+    ], function(err, stdout) {
+        if (err) console.error(err);
+
+        callback(err);
+    });
+}
+
+
 function generateNext(callback) {
     console.log('=== Starting Subtitle ' + CURRENT + ' / ' + SUBTITLES.length);
 
@@ -247,6 +281,7 @@ function generateNext(callback) {
     async.series([
         takeAllScreenShots,
         generateSubtitle,
+        polishSubtitle,
         addSubtitleAndWatermark,
         generateTheGif,
         generateThumbnail,
