@@ -224,13 +224,6 @@ function generateSubtitle(callback) {
         '-size', WIDTH + 'x',
         '-gravity', 'Center',
         "caption:'" + str + "'",
-        '-font', 'AG Foreigner',
-        '-pointsize', size,
-        '-stroke', 'none',
-        '-fill', '#ffffff',
-        '-size', WIDTH + 'x',
-        '-gravity', 'Center',
-        "caption:'" + str + "'",
         target
     ], function(err, stdout) {
         if (err) console.error(err);
@@ -263,7 +256,7 @@ function polishSubtitle(callback) {
         '-fill', '#ffffff',
         '-size', WIDTH + 'x',
         '-gravity', 'Center',
-        "caption:'" + str + "'"
+        "caption:'" + str + "'",
         target
     ], function(err, stdout) {
         if (err) console.error(err);
