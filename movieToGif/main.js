@@ -200,7 +200,7 @@ function takeAllScreenShots(callback) {
 }
 
 function generateSubtitle(callback) {
-    var target = TEMP_DIR + 'srt' + CURRENT + '_.png';
+    var target = TEMP_DIR + 'pre' + CURRENT + '_.png';
     var str = SUBTITLES[CURRENT].text;
 
     var size = 32;
@@ -234,15 +234,15 @@ function generateSubtitle(callback) {
 
 function polishSubtitle(callback) {
     console.log('polish subtitle :)');
-    var target = TEMP_DIR + 'srt' + CURRENT + '.png';
-    var source = TEMP_DIR + 'srt' + CURRENT + '_.png';
+    var target = TEMP_DIR + 'pre' + CURRENT + '.png';
+    var source = TEMP_DIR + 'srt' + CURRENT + '.png';
     var str = SUBTITLES[CURRENT].text;
 
     var size = 32;
     var strokeSize = "0";
 
   
-    im.convert([source,
+    im.convert([target,
         '-font', 'AG Foreigner',
         '-pointsize', size,
         '-stroke', 'none',
