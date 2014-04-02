@@ -223,12 +223,12 @@ function generateSubtitle(callback) {
         '-fill', '#ffffff',
         '-size', WIDTH + 'x',
         '-gravity', 'Center',
-        'caption:' + str ,
+        '-annotate', + str ,
         '-stroke', 'none',
         '-fill', '#ffffff',
         '-size', WIDTH + 'x',
         '-gravity', 'Center',
-        'caption:' + str ,
+        '-annotate', str,
         target
     ], function(err, stdout) {
         if (err) console.error(err);
