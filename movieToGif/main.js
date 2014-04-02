@@ -247,8 +247,8 @@ function polishSubtitle(callback) {
         size = 28;
         strokeSize = "1.5";
     }
-    im.convert([
-        '-background',  target,
+    im.convert([target,
+        '-background',  transparent,
         '-font', 'AG Foreigner',
         '-pointsize', size,
         '-stroke', 'none',
