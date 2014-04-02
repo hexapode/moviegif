@@ -8,7 +8,7 @@ var config = {
     app: {
       name: 'moviegif'
     },
-    port: 3002,
+    port: 3000,
     db: 'mongodb://localhost/moviegif-development'
   },
 
@@ -17,7 +17,7 @@ var config = {
     app: {
       name: 'moviegif'
     },
-    port: 3002,
+    port: 3000,
     db: 'mongodb://localhost/moviegif-test'
   },
 
