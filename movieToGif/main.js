@@ -114,7 +114,7 @@ function addSubtitleAndWatermark(callback) {
         im.convert([
             file,
             // add subtitle
-            TEMP_DIR + 'srt' + CURRENT + '.png',
+            TEMP_DIR + 'srt' + CURRENT + '-0.png',
             '-gravity', 'south',
             '-composite',
             // add watermark
