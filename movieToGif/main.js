@@ -114,7 +114,7 @@ function addSubtitleAndWatermark(callback) {
         im.convert([
             file,
             // add subtitle
-            TEMP_DIR + 'srt' + CURRENT + '.png',
+            TEMP_DIR + 'srt' + CURRENT + '-1.png',
             '-gravity', 'south',
             '-composite',
             // add watermark
@@ -234,11 +234,11 @@ function generateSubtitle(callback) {
 
 function polishSubtitle(callback) {
     console.log('polish subtitle :)');
-    var source = TMP_2DIR + 'pre' + CURRENT + '.png';
-    var target = TMP_2DIR + 'srt' + CURRENT + '.png';
+    var source = TEMP_DIR + 'pre' + CURRENT + '.png';
+    var target = TEMP_DIR + 'srt' + CURRENT + '.png';
 
     console.log(target + ' > ' + source);
-    
+
     var str = SUBTITLES[CURRENT].text;
 
     var size = 32;
@@ -406,7 +406,6 @@ function initMovieGeneration(argv) {
 
     // TEMP_DIR = '/mnt/ramdisk/frames/' + MOVIE_NAME + '/';
     TEMP_DIR = './movieToGif/frames/' + MOVIE_NAME + '/';
-    TMP_2DIR = '/var/www/moviegif/movieToGif/frames/' + MOVIE_NAME + '/';
 
     try {
         var stats = fs.statSync(TEMP_DIR);
