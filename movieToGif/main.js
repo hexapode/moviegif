@@ -241,12 +241,19 @@ function polishSubtitle(callback) {
     var size = 32;
     var strokeSize = "0";
 
+    if (str.length > 60) {
+        size = 26;
+        strokeSize = "0";
+    }
+    else if (str.length > 30) {
+        size = 28;
+        strokeSize = "0";
+    }
   
     im.convert([source,
         '-font', 'AG Foreigner',
         '-pointsize', size,
         '-stroke', 'none',
-        '-strokewidth', 0,
         '-fill', '#ffffff',
         '-size', WIDTH + 'x',
         '-gravity', 'Center',
