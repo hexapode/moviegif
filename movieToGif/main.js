@@ -114,7 +114,8 @@ function addSubtitleAndWatermark(callback) {
         im.convert([
             file,
             // add subtitle
-            TEMP_DIR + 'srt' + CURRENT + '-1.png',
+            TEMP_DIR + 'pre' + CURRENT + '.png',
+            TEMP_DIR + 'srt' + CURRENT + '.png',
             '-gravity', 'south',
             '-composite',
             // add watermark
@@ -234,7 +235,6 @@ function generateSubtitle(callback) {
 
 function polishSubtitle(callback) {
     console.log('polish subtitle :)');
-    var source = TEMP_DIR + 'pre' + CURRENT + '.png';
     var target = TEMP_DIR + 'srt' + CURRENT + '.png';
 
     console.log(target + ' > ' + source);
@@ -253,7 +253,7 @@ function polishSubtitle(callback) {
         strokeSize = "0";
     }
   
-    im.convert([source,
+    im.convert([
         '-font', 'AG Foreigner',
         '-background', 'transparent',
         '-pointsize', size,
