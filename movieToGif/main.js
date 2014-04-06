@@ -237,7 +237,6 @@ function polishSubtitle(callback) {
     console.log('polish subtitle :)');
     var target = TEMP_DIR + 'srt' + CURRENT + '.png';
 
-    console.log(target + ' > ' + source);
 
     var str = SUBTITLES[CURRENT].text;
 
