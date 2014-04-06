@@ -115,9 +115,13 @@ function addSubtitleAndWatermark(callback) {
             file,
             // add subtitle
             TEMP_DIR + 'pre' + CURRENT + '.png',
+            '-gravity', 'south',
+            '-composite',
+
             TEMP_DIR + 'srt' + CURRENT + '.png',
             '-gravity', 'south',
             '-composite',
+            
             // add watermark
             './movieToGif/watermark.png',
             '-gravity', 'west',
