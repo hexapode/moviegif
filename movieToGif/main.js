@@ -114,7 +114,7 @@ function addSubtitleAndWatermark(callback) {
         im.convert([
             file,
             // add subtitle
-            TEMP_DIR + 'srt' + CURRENT + '-1.png',
+            TEMP_DIR + 'srt' + CURRENT + '-0.png',
             '-gravity', 'south',
             '-composite',
             // add watermark
@@ -255,6 +255,7 @@ function polishSubtitle(callback) {
   
     im.convert([source,
         '-font', 'AG Foreigner',
+        '-background', 'transparent',
         '-pointsize', size,
         '-stroke', 'none',
         '-fill', '#ffffff',
