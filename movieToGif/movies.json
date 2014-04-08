@@ -1,0 +1,104 @@
+[
+  {
+    "movie" : "./movieToGif/movies/Back_To_The_Future/Back.To.The.Future-Part.III[1990]DvDrip-aXXo.avi",
+    "srt" : "./movieToGif/movies/Back_To_The_Future/Back.To.The.Future-Part.III[1990]DvDrip-aXXo.srt",
+    "name" : "Back_To_The_FutureIII",
+    "beauty" : "Back To The Future III"
+  },
+
+  {
+    "movie" : "./movieToGif/movies/Back_To_The_Future/Back.To.The.Future-Part.II[1989]DvDrip-aXXo.avi",
+    "srt" : "./movieToGif/movies/Back_To_The_Future/Back.To.The.Future-Part.II[1989]DvDrip-aXXo.avi.srt",
+    "name" : "Back_To_The_FutureII",
+    "beauty" : "Back To The Future II"
+  },
+
+  {
+    "movie" : "./movieToGif/movies/Back_To_The_Future/Back.To.The.Future[1985]DvDrip-aXXo.avi",
+    "srt" : "./movieToGif/movies/Back_To_The_Future/Back.To.The.Future[1985]DvDrip-aXXo.srt",
+    "name" : "Back_To_The_Future",
+    "beauty" : "Back To The Future"
+  },
+
+  {
+    "movie" : "./movieToGif/movies/James_Bond/James.Bond.Diamonds.Are.Forever.1971.720p.BRrip.x264.YIFY.mp4",
+    "srt" : "./movieToGif/movies/James_Bond/James.Bond.Diamonds.Are.Forever.1971.720p.BRrip.x264.YIFY.srt",
+    "name" : "Diamonds_are_forever",
+    "beauty" : "James Bond : Diamonds are for ever"
+  },
+
+   {
+    "movie" : "./movieToGif/movies/James_Bond/James.Bond.Die.Another.Day.2002.1080p.BRrip.x264.YIFY.mp4",
+    "srt" : "./movieToGif/movies/James_Bond/James.Bond.Die.Another.Day.2002.1080p.BRrip.x264.YIFY.srt",
+    "name" : "Die_another_day",
+    "beauty" : "James Bond : Die Another Day"
+  },
+
+
+   {
+    "movie" : "./movieToGif/movies/James_Bond/James.Bond.GoldenEye.1995.1080p.BRrip.x264.YIFY.mp4",
+    "srt" : "./movieToGif/movies/James_Bond/James.Bond.GoldenEye.1995.1080p.BRrip.x264.YIFY.srt",
+    "name" : "golden_eye",
+    "beauty" : "James Bond : GoldenEye"
+  },
+
+   {
+    "movie" : "./movieToGif/movies/James_Bond/James.Bond.Quantum.of.Solace.2008.720p.BRrip.x264.YIFY.mp4",
+    "srt" : "./movieToGif/movies/James_Bond/James.Bond.Quantum.of.Solace.2008.720p.BRrip.x264.YIFY.srt",
+    "name" : "quantum_of_solace",
+    "beauty" : "James Bond : Quantum of Solace"
+  },
+
+  {
+    "movie" : "./movieToGif/movies/James_Bond/James.Bond.The.World.Is.Not.Enough.1999.1080p.BRrip.x264.YIFY.mp4",
+    "srt" : "./movieToGif/movies/James_Bond/James.Bond.The.World.Is.Not.Enough.1999.1080p.BRrip.x264.YIFY.srt",
+    "name" : "the_world_is_not_enough",
+    "beauty" : "James Bond : The world is not enough"
+  },
+
+
+  {
+    "movie" : "./movieToGif/movies/James_Bond/James.Bond.Tomorrow.Never.Dies.1997.1080p.BRrip.x264.YIFY.mp4",
+    "srt" : "./movieToGif/movies/James_Bond/James.Bond.Tomorrow.Never.Dies.1997.1080p.BRrip.x264.YIFY.srt",
+    "name" : "tomorrow_never_dies",
+    "beauty" : "James Bond : Tomorrow Never Dies"
+  },
+
+
+  {
+    "movie" : "./movieToGif/movies/James_Bond/James.BondCasino.Royale.2006.1080p.BRrip.x264.YIFY.mp4",
+    "srt" : "./movieToGif/movies/James_Bond/James.BondCasino.Royale.2006.1080p.BRrip.x264.YIFY.srt",
+    "name" : "Casino_Royale",
+    "beauty" : "James Bond : Casino Royale"
+  },
+
+
+{
+    "movie" : "./movieToGif/movies/Star_Wars/Star.Wars.Episode.4.A.New.Hope.1977.1080p.BrRip.x264.BOKUTOX.YIFY.mp4",
+    "srt" : "./movieToGif/movies/Star_Wars/Star.Wars.Episode.4.A.New.Hope.1977.1080p.BrRip.x264.BOKUTOX.YIFY.srt",
+    "name" : "SW_A_new_hope",
+    "beauty" : "Star Wars : A new hope"
+  },
+
+  {
+    "movie" : "./movieToGif/movies/Star_Wars/Star.Wars.Episode.5.The.Empire.Strikes.Back.1980.1080p.BrRip.x264.BOKUTOX.YIFY.mp4",
+    "srt" : "./movieToGif/movies/Star_Wars/Star.Wars.Episode.5.The.Empire.Strikes.Back.1980.1080p.BrRip.x264.BOKUTOX.YIFY.srt",
+    "name" : "SW_The_Empire_Strikes_Back",
+    "beauty" : "Star Wars : The Empire Strikes Back"
+  },
+
+  {
+    "movie" : "./movieToGif/movies/Star_Wars/Star.Wars.Episode.6.Return.of.the.Jedi.1983.1080p.BrRip.x264.BOKUTOX.YIFY.mp4",
+    "srt" : "./movieToGif/movies/Star_Wars/Star.Wars.Episode.6.Return.of.the.Jedi.1983.1080p.BrRip.x264.BOKUTOX.YIFY.srt",
+    "name" : "SW_Return_Of_The_Jedi",
+    "beauty" : "Star Wars : Return of the Jedi"
+  },
+
+  {
+    "movie" : "./movieToGif/movies/Terminator/Terminator 2 - Judgment Day (1991) 720p BRRip x264 [Dual-Audio] [Eng-Hindi].mkv",
+    "srt" : "./movieToGif/movies/Terminator/Terminator 2 - Judgment Day (1991) 720p BRRip x264 [Dual-Audio] [Eng-Hindi].srt",
+    "name" : "Terminator2",
+    "beauty" : "Terminator 2 : Judgment Day"
+  }
+
+]
