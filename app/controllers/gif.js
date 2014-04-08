@@ -30,7 +30,7 @@ exports.index = function(req, res) {
     	    gif: id,
           previous : name + (num - 1) + '.gif',
           next :  name + (num + 1) + '.gif',
-          results : JSON.stringify(results)
+          results : JSON.stringify(results[id])
     	});
     });
 };
