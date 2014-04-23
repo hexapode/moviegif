@@ -1,0 +1,113 @@
+[
+  {
+    "movie" : "./movieToGif/movies/A.Clockwork.Orange.mp4",
+    "srt" : "./movieToGif/movies/A.Clockwork.Orange.srt",
+    "name" : "AClockworkOrange",
+    "beauty" : "A Clockwork Orange"
+  },
+
+  {
+    "movie" : "./movieToGif/movies/Apollo.13.mp4",
+    "srt" : "./movieToGif/movies/Apollo.13.srt",
+    "name" : "Apollo13",
+    "beauty" : "Apollo 13"
+  },
+
+  {
+    "movie" : "./movieToGif/movies/Indiana.Jones.And.The.Kingdom.of.the.Crystal.Skull.mp4",
+    "srt" : "./movieToGif/movies/Indiana.Jones.And.The.Kingdom.of.the.Crystal.Skull.srt",
+    "name" : "IndianaJonesAndTheKingdomOfTheCrystalSkull",
+    "beauty" : "Indiana Jones And The Kingdom of the Crystal Skull"
+  },
+
+  {
+    "movie" : "./movieToGif/movies/Indiana.Jones.And.The.Last.Crusade.mp4",
+    "srt" : "./movieToGif/movies/Indiana.Jones.And.The.Last.Crusade.srt",
+    "name" : "IndianaJonesAndTheLastCrusade",
+    "beauty" : "Indiana Jones And The Last Crusade"
+  },
+
+  {
+    "movie" : "./movieToGif/movies/Indiana.Jones.And.The.Raiders.Of.The.Lost.Ark.mp4",
+    "srt" : "./movieToGif/movies/Indiana.Jones.And.The.Raiders.Of.The.Lost.Ark.srt",
+    "name" : "IndianaJonesAndTheRaidersOfTheLostArk",
+    "beauty" : "Indiana Jones And The Raiders Of The Lost Ark"
+  },
+
+  {
+    "movie" : "./movieToGif/movies/Indiana.Jones.And.The.Temple.Of.Doom.mp4",
+    "srt" : "./movieToGif/movies/Indiana.Jones.And.The.Temple.Of.Doom.srt",
+    "name" : "IndianaJonesAndTheTempleOfDoom",
+    "beauty" : "Indiana Jones And The Temple Of Doom"
+  },
+
+  {
+    "movie" : "./movieToGif/movies/Jaws.mp4",
+    "srt" : "./movieToGif/movies/Jaws.srt",
+    "name" : "Jaws",
+    "beauty" : "Jaws"
+  },
+
+  {
+    "movie" : "./movieToGif/movies/Terminator3.mp4",
+    "srt" : "./movieToGif/movies/Terminator3.srt",
+    "name" : "Terminator3",
+    "beauty" : "Terminator 3"
+  },
+
+  {
+    "movie" : "./movieToGif/movies/The.Matrix.Reloaded.mp4",
+    "srt" : "./movieToGif/movies/The.Matrix.Reloaded.srt",
+    "name" : "TheMatrixReloaded",
+    "beauty" : "The Matrix Reloaded"
+  },
+
+  {
+    "movie" : "./movieToGif/movies/The.Matrix.Revolutions.mp4",
+    "srt" : "./movieToGif/movies/The.Matrix.Revolutions.srt",
+    "name" : "TheMatrixRevolutions",
+    "beauty" : "The Matrix Revolutions"
+  },
+
+  {
+    "movie" : "./movieToGif/movies/Titanic.mp4",
+    "srt" : "./movieToGif/movies/Titanic.srt",
+    "name" : "Titanic",
+    "beauty" : "Titanic"
+  },
+
+  {
+    "movie" : "./movieToGif/movies/TopGun.mp4",
+    "srt" : "./movieToGif/movies/TopGun.srt",
+    "name" : "TopGun",
+    "beauty" : "Top Gun"
+  },
+
+  {
+    "movie" : "./movieToGif/movies/lotr1.mp4",
+    "srt" : "./movieToGif/movies/lotr1.srt",
+    "name" : "LordOfTheRingsTheFellowshipoftheRing",
+    "beauty" : "Lord Of The Rings : The Fellowship of the Ring"
+  },
+
+  {
+    "movie" : "./movieToGif/movies/lotr2.mp4",
+    "srt" : "./movieToGif/movies/lotr2.srt",
+    "name" : "LordOfTheRingsTheTwoTowers",
+    "beauty" : "Lord Of The Rings : The Two Towers"
+  },
+
+  {
+    "movie" : "./movieToGif/movies/lotr3.mp4",
+    "srt" : "./movieToGif/movies/lotr3.srt",
+    "name" : "LordOfTheRingsTheReturnoftheKing",
+    "beauty" : "Lord Of The Rings : The Return of the King"
+  },
+
+  {
+    "movie" : "./movieToGif/movies/matrix.mp4",
+    "srt" : "./movieToGif/movies/matrix.srt",
+    "name" : "matrix",
+    "beauty" : "Matrix"
+  }
+]
